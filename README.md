@@ -6,8 +6,8 @@
 
 ## 内容
 
-- 机器人：运动规划与轨迹生成（Ruckig、TOPP-RA）、运动学与动力学（DH、雅可比、拉格朗日、参数辨识）、状态估计（卡尔曼滤波、EKF）、电机控制（FOC）、力控（阻抗/导纳）、实时系统（PREEMPT_RT、EtherCAT）
-- 具身智能：VLA 机器人基础模型（π 系列）、模仿学习（ACT、Diffusion Policy）原理解析
+- 机器人：运动规划（RRT、Ruckig、TOPP-RA）、运动学与动力学（DH、雅可比、拉格朗日、参数辨识）、状态估计（卡尔曼滤波、EKF、ESKF/IMU）、电机控制（FOC）、力控（阻抗/导纳）、实时系统（PREEMPT_RT、EtherCAT）、软件架构（ROS 2）
+- 具身智能：VLA 机器人基础模型（π 系列）、模仿学习（ACT、Diffusion Policy）、强化学习与 sim-to-real（足式机器人）原理解析
 - 编程语言：C++ 基础、并发编程、内存模型与无锁编程
 
 ## 本地预览
