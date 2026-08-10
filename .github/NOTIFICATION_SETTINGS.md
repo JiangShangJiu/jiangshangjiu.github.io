@@ -69,7 +69,40 @@ from:notifications@github.com subject:"[jiangshangjiu/jiangshangjiu.github.io] R
 
 - 操作：**跳过收件箱** + **标记为已读** + **应用标签 "GitHub/Actions"**
 
-## 6. 取消订阅已有的通知线程
+## 6. 管理其他仓库的通知（如 transformers 仓库）
+
+如果你收到来自其他仓库的通知（例如 "Nvidia CI - Flash Attn" workflow 警告）：
+
+### 方法一：取消 Watch 该仓库
+
+1. 访问仓库页面：<https://github.com/JiangShangJiu/transformers>
+2. 点击右上角的 **"Unwatch"** 或 **"Watch"** 按钮
+3. 选择 **"Ignore"**（忽略所有通知）
+
+### 方法二：只关闭 Actions 通知
+
+1. 访问仓库页面：<https://github.com/JiangShangJiu/transformers>
+2. 点击右上角的 **"Watch"** 按钮
+3. 选择 **"Custom"**（自定义）
+4. **取消勾选 "Actions"** 相关选项
+5. 点击 "Apply"（应用）
+
+### 方法三：批量管理所有订阅
+
+1. 访问：<https://github.com/notifications/subscriptions>
+2. 查看所有已订阅的仓库列表
+3. 找到 `JiangShangJiu/transformers`
+4. 点击 **"Unwatch"** 或调整订阅设置
+
+### 针对 Workflow 即将禁用的警告
+
+如果收到 "workflow will be disabled soon" 的邮件：
+
+- **原因**：GitHub 会自动禁用 60 天未使用的 workflow
+- **解决**：如果不需要该 workflow，可以直接忽略这个警告
+- **保持激活**：如果需要保持 workflow 激活，需要手动触发一次或推送代码
+
+## 7. 取消订阅已有的通知线程
 
 如果你已经订阅了某些讨论或 Issue：
 
@@ -79,9 +112,28 @@ from:notifications@github.com subject:"[jiangshangjiu/jiangshangjiu.github.io] R
 
 ## 快速链接
 
-- 通知设置：<https://github.com/settings/notifications>
-- 已订阅列表：<https://github.com/notifications/subscriptions>
-- 本仓库设置：<https://github.com/jiangshangjiu/jiangshangjiu.github.io>
+- **全局通知设置**：<https://github.com/settings/notifications>
+- **已订阅仓库列表**：<https://github.com/notifications/subscriptions>
+- **本仓库 (博客)**：<https://github.com/jiangshangjiu/jiangshangjiu.github.io>
+- **transformers 仓库**：<https://github.com/JiangShangJiu/transformers>
+
+## 推荐配置总结
+
+### 个人博客仓库 (jiangshangjiu.github.io)
+
+- ✅ **Watch**: "Participating and @mentions"
+- ❌ **Actions**: 只在失败时通知
+
+### transformers 仓库
+
+- **不需要关注**：设置为 **"Ignore"**
+- **偶尔查看**：设置为 **"Releases only"** 或 **"Custom"**（取消所有勾选项）
+
+### 全局设置
+
+1. 取消勾选 "Automatically watch repositories"
+2. Actions: 只在失败时通知
+3. Email: 只接收重要通知（@mentions、参与的讨论）
 
 ---
 
