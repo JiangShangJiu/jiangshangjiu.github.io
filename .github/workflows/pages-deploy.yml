@@ -12,6 +12,10 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+# 减少邮件通知：只在工作流失败时发送通知
+# 在 GitHub 个人设置中可进一步配置：Settings → Notifications → Actions
+# 取消勾选 "Send notifications for successful workflow runs"
+
 permissions:
   contents: read
   pages: write
