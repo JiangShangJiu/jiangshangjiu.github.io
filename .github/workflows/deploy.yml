@@ -1,0 +1,106 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - README.md
+      - LICENSE
+      - .gitignore
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    environment: github-pages
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm test
+
+      # `SITE_URL` / `BASE_PATH` are read from repository variables when set,
+      # otherwise they fall back to sensible defaults.
+      #
+      # NOTE: this repo is `<owner>.github.io` — a GitHub *user* page served
+      # from the domain root — so `BASE_PATH` MUST stay empty. (A project
+      # page such as `owner/my-blog` would need `BASE_PATH=/my-blog`.)
+      #
+      # The `PUBLIC_*` values below are all optional: they are already
+      # baked into `src/config.ts`, so leaving a variable unset just keeps
+      # the committed default. Empty strings fall back too, because
+      # `src/config.ts` uses `||` rather than `??`.
+      - name: Build with Astro
+        env:
+          SITE_URL: ${{ vars.SITE_URL || format('https://{0}.github.io', github.repository_owner) }}
+          BASE_PATH: ${{ vars.BASE_PATH || '' }}
+          PUBLIC_GITHUB_HANDLE: ${{ vars.PUBLIC_GITHUB_HANDLE || github.repository_owner }}
+          PUBLIC_CONTACT_EMAIL: ${{ vars.PUBLIC_CONTACT_EMAIL }}
+          PUBLIC_GISCUS_ENABLED: ${{ vars.PUBLIC_GISCUS_ENABLED }}
+          PUBLIC_GISCUS_REPO: ${{ vars.PUBLIC_GISCUS_REPO }}
+          PUBLIC_GISCUS_REPO_ID: ${{ vars.PUBLIC_GISCUS_REPO_ID }}
+          PUBLIC_GISCUS_CATEGORY: ${{ vars.PUBLIC_GISCUS_CATEGORY }}
+          PUBLIC_GISCUS_CATEGORY_ID: ${{ vars.PUBLIC_GISCUS_CATEGORY_ID }}
+        run: npm run build
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ./dist
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check if GitHub Pages is enabled
+        id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          status=$(curl -sS -o /tmp/pages.json -w "%{http_code}" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pages")
+
+          if [ "$status" = "200" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "GitHub Pages is not enabled yet (HTTP $status). Skipping deployment."
+          fi
+
+      - name: Setup Pages
+        if: steps.pages.outputs.enabled == 'true'
+        uses: actions/configure-pages@v6
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        if: steps.pages.outputs.enabled == 'true'
+        uses: actions/deploy-pages@v5

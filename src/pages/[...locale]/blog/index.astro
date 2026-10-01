@@ -1,0 +1,94 @@
+---
+/**
+ * 博客索引页：按一级分类分组展示全部文章。
+ *
+ * 对应旧 Jekyll 版的 `_layouts/blog.html`。分组顺序按「该组最新一篇的
+ * 时间」从新到旧，组内也按时间从新到旧 —— 与旧版行为一致。
+ */
+import { Icon } from 'astro-icon/components';
+
+import PostCard from '~/components/PostCard.astro';
+import { SITE } from '~/config';
+import { useTranslations, withBase } from '~/i18n/utils';
+import { categoryPath, getPosts, type Post } from '~/utils/posts';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+
+export function getStaticPaths() {
+  return SITE.locales.map((l) => ({
+    params: { locale: l === SITE.defaultLocale ? undefined : l },
+    props: { locale: l },
+  }));
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const posts = await getPosts(locale);
+
+/** 按一级分类分组，保持「最新一篇」的先后顺序 */
+const groups: Array<{ name: string; posts: Post[] }> = [];
+for (const post of posts) {
+  const name = post.data.categories[0] ?? '未分类';
+  let group = groups.find((g) => g.name === name);
+  if (!group) {
+    group = { name, posts: [] };
+    groups.push(group);
+  }
+  group.posts.push(post);
+}
+
+const chips = [
+  { label: t('categories.title'), href: withBase('/categories/') },
+  { label: t('tags.title'), href: withBase('/tags/') },
+  { label: t('archives.title'), href: withBase('/archives/') },
+  { label: 'RSS', href: withBase('/rss.xml') },
+];
+---
+
+<BaseLayout title={t('nav.posts')} pathWithoutLocale="/blog/" crumbs={[{ label: t('nav.posts') }]}>
+  <div class="mt-1 mb-3 flex flex-wrap items-end justify-between gap-2">
+    <p class="text-base-content/70 mb-0 text-sm">
+      共 {posts.length} 篇技术笔记，按主题分组；分组内按时间从新到旧。
+    </p>
+    <ul class="nav-chips">
+      {
+        chips.map((chip) => (
+          <li>
+            <a href={chip.href}>{chip.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  {
+    posts.length === 0 ? (
+      <p class="text-base-content/70">{t('list.empty')}</p>
+    ) : (
+      groups.map((group) => (
+        <div>
+          <div class="post-module-head">
+            <h2>
+              <Icon name="lucide:folder-open" width={17} height={17} class="inline align-[-3px]" />{' '}
+              {group.name}
+            </h2>
+            <a href={categoryPath(locale, group.name)}>
+              {group.posts.length} {t('list.totalPosts')}{' '}
+              <Icon
+                name="lucide:chevron-right"
+                width={13}
+                height={13}
+                class="inline align-[-2px]"
+              />
+            </a>
+          </div>
+
+          <div id="post-list">
+            {group.posts.map((post) => (
+              <PostCard post={post} locale={locale} />
+            ))}
+          </div>
+        </div>
+      ))
+    )
+  }
+</BaseLayout>

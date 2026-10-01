@@ -1,0 +1,123 @@
+---
+/**
+ * 成果详情页。内容全部来自 `src/content/projects/<名称>.md`。
+ * 对应旧 Jekyll 版的 `_layouts/project.html`。
+ */
+import { render } from 'astro:content';
+import { Icon } from 'astro-icon/components';
+
+import { SITE } from '~/config';
+import { useTranslations, withBase } from '~/i18n/utils';
+import { getProjects, projectSlug } from '~/utils/projects';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const projects = await getProjects();
+  return SITE.locales.flatMap((locale) =>
+    projects.map((project) => ({
+      params: {
+        locale: locale === SITE.defaultLocale ? undefined : locale,
+        slug: projectSlug(project),
+      },
+      props: { project },
+    })),
+  );
+}
+
+const { project } = Astro.props;
+const locale = SITE.defaultLocale;
+const t = useTranslations(locale);
+
+const { Content } = await render(project);
+const {
+  title,
+  subtitle,
+  description,
+  heroImage,
+  highlights,
+  role,
+  period,
+  status,
+  stack,
+  buttons,
+} = project.data;
+
+const cover = typeof heroImage === 'string' ? withBase(heroImage) : undefined;
+
+const meta = [
+  { label: '我的角色', value: role },
+  { label: '时间', value: period },
+  { label: '状态', value: status },
+  { label: '技术栈', value: stack.join(' · ') },
+].filter((item) => Boolean(item.value));
+---
+
+<BaseLayout
+  title={title}
+  description={description ?? subtitle ?? title}
+  ogImage={cover}
+  pathWithoutLocale={`/projects/${projectSlug(project)}/`}
+  crumbs={[{ label: t('projects.title'), href: withBase('/projects/') }, { label: title }]}
+>
+  <article class="px-1">
+    <p class="mb-2">
+      <a href={withBase('/projects/')} class="text-base-content/70 text-sm no-underline">
+        <Icon name="lucide:arrow-left" width={13} height={13} class="inline align-[-2px]" />
+        {t('projects.backToProjects')}
+      </a>
+    </p>
+
+    <header class="project-hero">
+      <h1>{title}</h1>
+      {subtitle && <p class="project-subtitle">{subtitle}</p>}
+
+      {
+        buttons.length > 0 && (
+          <div class="action-row">
+            {buttons.map((btn) => (
+              <a
+                class:list={['action-btn', btn.primary && 'primary']}
+                href={btn.external ? btn.url : withBase(btn.url)}
+                target={btn.external ? '_blank' : undefined}
+                rel={btn.external ? 'noopener noreferrer' : undefined}
+              >
+                {btn.icon && <Icon name={btn.icon} width={15} height={15} />}
+                {btn.label}
+              </a>
+            ))}
+          </div>
+        )
+      }
+    </header>
+
+    {
+      highlights.length > 0 && (
+        <div class="result-grid">
+          {highlights.map((item) => (
+            <div class="result-card">
+              <span class="result-value">{item.value}</span>
+              <span class="result-label">{item.label}</span>
+            </div>
+          ))}
+        </div>
+      )
+    }
+
+    {
+      meta.length > 0 && (
+        <div class="meta-grid">
+          {meta.map((item) => (
+            <div class="meta-item">
+              <span class="meta-label">{item.label}</span>
+              <span class="meta-value">{item.value}</span>
+            </div>
+          ))}
+        </div>
+      )
+    }
+
+    <div class="prose-chirpy max-w-none">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>

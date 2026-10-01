@@ -1,169 +1,70 @@
 {
-  "name": "jekyll-theme-chirpy",
-  "version": "6.5.5",
-  "description": "A minimal, responsive, and feature-rich Jekyll theme for technical writing.",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/cotes2020/jekyll-theme-chirpy.git"
-  },
-  "author": "Cotes Chung",
+  "name": "jiangshangjiu-blog",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "孔乙己的个人博客：机器人、具身智能、运动规划、C++ 与并发编程。基于 Astro + Chirping Astro 主题构建。",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/cotes2020/jekyll-theme-chirpy/issues"
+  "private": true,
+  "engines": {
+    "node": ">=20"
   },
-  "homepage": "https://github.com/cotes2020/jekyll-theme-chirpy/",
   "scripts": {
-    "prebuild": "npx rimraf assets/js/dist",
-    "build": "NODE_ENV=production npx rollup -c --bundleConfigAsCjs",
-    "prewatch": "npx rimraf assets/js/dist",
-    "watch": "npx rollup -c --bundleConfigAsCjs -w",
-    "test": "npx stylelint _sass/**/*.scss",
-    "fixlint": "npm run test -- --fix"
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build && npm run pagefind",
+    "preview": "astro preview",
+    "astro": "astro",
+    "pagefind": "pagefind --site dist --output-subdir _pagefind",
+    "typecheck": "astro check",
+    "test": "node --test",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"**/*.{astro,ts,tsx,js,jsx,md,mdx,css,json}\"",
+    "format:check": "prettier --check \"**/*.{astro,ts,tsx,js,jsx,md,mdx,css,json}\""
+  },
+  "dependencies": {
+    "@astrojs/markdown-satteri": "^0.3.3",
+    "@astrojs/mdx": "^7.0.1",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.3",
+    "@nullpinter/satteri-katex": "^0.1.2",
+    "astro": "^7.0.5",
+    "astro-expressive-code": "^0.44.0",
+    "astro-icon": "^1.1.5",
+    "mermaid": "^11.16.0",
+    "satteri-external-links": "^0.1.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.24.3",
-    "@babel/plugin-transform-class-properties": "^7.24.1",
-    "@babel/preset-env": "^7.24.3",
-    "@commitlint/cli": "^19.2.1",
-    "@commitlint/config-conventional": "^19.1.0",
-    "@rollup/plugin-babel": "^6.0.4",
-    "@rollup/plugin-terser": "^0.4.4",
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/exec": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
-    "conventional-changelog-conventionalcommits": "^7.0.2",
-    "husky": "^9.0.11",
-    "rimraf": "^5.0.5",
-    "rollup": "^4.13.2",
-    "rollup-plugin-license": "^3.3.1",
-    "semantic-release": "^23.0.8",
-    "stylelint": "^16.3.1",
-    "stylelint-config-standard-scss": "^13.0.0"
+    "@astrojs/check": "^0.9.9",
+    "@eslint/js": "^10.0.1",
+    "@fontsource/inter": "^5.2.8",
+    "@fontsource/jetbrains-mono": "5.3.0",
+    "@fontsource/lato": "5.3.0",
+    "@fontsource/source-sans-3": "5.3.0",
+    "@iconify-json/lucide": "^1.2.115",
+    "@iconify-json/simple-icons": "^1.2.88",
+    "@resvg/resvg-js": "^2.6.2",
+    "@tailwindcss/vite": "^4.3.2",
+    "@typescript-eslint/eslint-plugin": "^8.62.1",
+    "@typescript-eslint/parser": "^8.62.1",
+    "daisyui": "^5.6.10",
+    "eslint": "^10.6.0",
+    "eslint-plugin-astro": "^3.0.0",
+    "katex": "^0.18.1",
+    "pagefind": "^1.5.2",
+    "prettier": "^3.9.4",
+    "prettier-plugin-astro": "^0.14.1",
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "satori": "^0.29.0",
+    "shiki": "^4.3.0",
+    "tailwindcss": "^4.3.2",
+    "typescript": "^6.0.3",
+    "zod": "^4.4.3"
   },
-  "prettier": {
-    "trailingComma": "none"
-  },
-  "browserslist": [
-    "last 2 versions",
-    "> 0.2%",
-    "not dead"
-  ],
-  "commitlint": {
-    "extends": [
-      "@commitlint/config-conventional"
-    ],
-    "rules": {
-      "body-max-line-length": [
-        0,
-        "always"
-      ]
-    }
-  },
-  "stylelint": {
-    "extends": "stylelint-config-standard-scss",
-    "rules": {
-      "no-descending-specificity": null,
-      "shorthand-property-no-redundant-values": null,
-      "at-rule-no-vendor-prefix": null,
-      "property-no-vendor-prefix": null,
-      "selector-no-vendor-prefix": null,
-      "value-no-vendor-prefix": null,
-      "color-function-notation": "legacy",
-      "alpha-value-notation": "number",
-      "selector-not-notation": "simple",
-      "color-hex-length": "long",
-      "declaration-block-single-line-max-declarations": 3,
-      "scss/operator-no-newline-after": null,
-      "rule-empty-line-before": [
-        "always",
-        {
-          "ignore": [
-            "after-comment",
-            "first-nested"
-          ]
-        }
-      ],
-      "value-keyword-case": [
-        "lower",
-        {
-          "ignoreProperties": [
-            "/^\\$/"
-          ]
-        }
-      ],
-      "media-feature-range-notation": "prefix"
-    }
-  },
-  "release": {
-    "branches": [
-      "production"
-    ],
-    "plugins": [
-      [
-        "@semantic-release/commit-analyzer",
-        {
-          "preset": "conventionalcommits"
-        }
-      ],
-      [
-        "@semantic-release/release-notes-generator",
-        {
-          "preset": "conventionalcommits",
-          "presetConfig": {
-            "types": [
-              {
-                "type": "feat",
-                "section": "Features"
-              },
-              {
-                "type": "fix",
-                "section": "Bug Fixes"
-              },
-              {
-                "type": "perf",
-                "section": "Improvements"
-              },
-              {
-                "type": "refactor",
-                "section": "Changes",
-                "hidden": true
-              }
-            ]
-          }
-        }
-      ],
-      [
-        "@semantic-release/changelog",
-        {
-          "changelogFile": "docs/CHANGELOG.md",
-          "changelogTitle": "# Changelog"
-        }
-      ],
-      [
-        "@semantic-release/npm",
-        {
-          "npmPublish": false
-        }
-      ],
-      [
-        "@semantic-release/exec",
-        {
-          "prepareCmd": "bash tools/release --prepare",
-          "publishCmd": "bash tools/release"
-        }
-      ],
-      [
-        "@semantic-release/git",
-        {
-          "assets": [
-            "docs",
-            "package.json",
-            "*.gemspec"
-          ],
-          "message": "chore(release): ${nextRelease.version}\n\n${nextRelease.notes}"
-        }
-      ],
-      "@semantic-release/github"
-    ]
-  }
+  "keywords": [
+    "astro",
+    "blog",
+    "robotics",
+    "embodied-ai"
+  ]
 }

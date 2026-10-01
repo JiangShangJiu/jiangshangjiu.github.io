@@ -1,8 +1,11 @@
 # jiangshangjiu.github.io
 
-孔乙己的个人博客，基于 [Jekyll](https://jekyllrb.com/) 与 [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) 主题搭建，托管于 GitHub Pages。
+孔乙己的个人博客，基于 [Astro](https://astro.build/) 与 [Chirping Astro](https://github.com/kannansuresh/chirping-astro) 主题搭建，托管于 GitHub Pages。
 
 在线地址：<https://jiangshangjiu.github.io>
+
+> 本站原先由 Jekyll + [Chirpy](https://github.com/cotes2020/jekyll-theme-chirpy) 驱动，
+> 现已整体迁移到 Astro。所有文章 URL 与迁移前完全一致。
 
 ## 内容
 
@@ -12,20 +15,56 @@
 
 ## 本地预览
 
+需要 Node.js 22 及以上。
+
 ```bash
-bundle install
-bundle exec jekyll serve --livereload
-# 浏览器打开 http://127.0.0.1:4000
+npm ci
+npm run dev
+# 浏览器打开 http://localhost:4321
 ```
 
-草稿（`_drafts/` 目录）默认不发布，预览草稿加 `--drafts` 参数。
+常用命令：
+
+| 命令                | 说明                                     |
+| ------------------- | ---------------------------------------- |
+| `npm run dev`       | 启动开发服务器（热更新）                 |
+| `npm run build`     | 构建到 `dist/`，并生成 Pagefind 搜索索引 |
+| `npm run preview`   | 本地预览构建产物                         |
+| `npm run typecheck` | 类型检查（`astro check`）                |
+| `npm test`          | 运行单元测试                             |
+| `npm run lint`      | ESLint 检查                              |
+| `npm run format`    | 用 Prettier 格式化代码                   |
+
+站点配置集中在 `src/config.ts`（站点标题、副标题、导航、社交链接、Giscus、首页 profile）。
+环境变量均为可选，见 `.env.example`。
 
 ## 写作约定
 
-- 文章放在 `_posts/<分类>/YYYY-MM-DD-标题.md`，front matter 需包含 `title`、`description`、`author`、`date`、`categories`、`tags`；
+- 文章放在 `src/content/posts/zh/<标题>.md`，front matter 需包含 `title`、`description`、`pubDate`、`categories`、`tags`；
 - 数学公式与流程图分别通过 `math: true`、`mermaid: true` 开启；
-- 配图统一放在 `assets/img/<文章主题>/` 目录下。
+- 文件名即 URL：`src/content/posts/zh/卡尔曼滤波原理解析.md` → `/posts/卡尔曼滤波原理解析/`。
+  集合使用了 `generateId: preserveFilename`，**大小写与中文字符都会原样保留**，
+  以保证 Giscus 讨论（按 pathname 绑定）和既有的外部链接不失效；
+- 配图统一放在 `public/assets/img/<文章主题>/` 目录下。
+
+> **注意**：`src/content/` 已被 `.prettierignore` 排除。Prettier 的 Markdown
+> 格式化会把 `*`、`_` 当作强调标记，从而改坏正文里的 LaTeX（例如
+> `$i_d^*, i_q^*$` 会被改成 `$i_d^_, i_q^_$`）。需要重新生成这两类内容时，
+> 请使用 `scripts/` 下的脚本，不要对它们跑 `npm run format`。
+
+## 内容迁移脚本
+
+从 Jekyll 迁移时使用的辅助脚本，保留在 `scripts/` 下以便追溯：
+
+```bash
+# Jekyll 的 _posts / _projects 目录 -> Astro content collections
+python3 scripts/jekyll_to_astro.py posts    --source <jekyll>/_posts
+python3 scripts/jekyll_to_astro.py projects --source <jekyll>/_projects
+
+# 校验并规范化文章标签（--check 只检查，--apply 写入）
+python3 scripts/normalize_tags.py --check
+```
 
 ## 部署
 
-推送到 `main` 分支后，由 GitHub Actions（`.github/workflows/pages-deploy.yml`）自动构建并发布。
+推送到 `main` 分支后，由 GitHub Actions（`.github/workflows/deploy.yml`）自动构建并发布。

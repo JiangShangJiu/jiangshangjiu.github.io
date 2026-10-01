@@ -1,0 +1,129 @@
+---
+title: "C++ 多态"
+description: "静态多态（函数重载与模板）与动态多态（虚函数、动态绑定、vtable/vptr）的区别，以及虚函数调用在编译期与运行期的完整过程。"
+pubDate: 2024-05-03T11:33:00+08:00
+tags:
+  - "C++"
+  - "语言特性"
+categories:
+  - "编程"
+  - "C++"
+---
+
+# 多态定义
+多态（Polymorphism）是指在面向对象编程中，同一操作作用于不同的对象，可以有不同的解释和行为。简而言之，就是同一种消息给出了不同的响应。
+
+在具体实现上，多态性包括两种主要形式：
+
+- 编译时多态性（静态多态性）：在编译时根据程序的结构和数据类型来确定具体执行的代码。主要通过函数重载和模板实现。
+- 运行时多态性（动态多态性）：在运行时根据对象的实际类型来确定调用的函数实现。主要通过虚函数和继承实现。
+  
+多态性的优点在于它增加了代码的灵活性、可扩展性和可维护性。它使得代码能够更好地适应变化，实现了高内聚低耦合的设计原则。
+
+# 静态多态性
+静态多态性(static polymorphism)是在编译时决定调用哪个函数的一种多态性形式，通常通过函数重载(Overloading)和模板(Template)来实现。
+
+1. 函数重载：在同一个作用域内，可以定义多个同名函数，但参数类型或个数不同。编译器在编译时根据调用的函数参数类型和个数来确定调用哪个函数。
+   
+```cpp
+    void foo(int x) {
+    // Do something with an integer
+    }
+
+    void foo(double x) {
+    // Do something with a double
+    }
+
+    int main() {
+        foo(5);      // 调用 foo(int)
+        foo(3.14);   // 调用 foo(double)
+        return 0;
+    }
+```
+1. 模板(Template): 模板允许编写通用代码，它们在编译时根据传递给它们的类型生成对应的代码。在模板函数或类中，可以使用类型参数来指定数据类型，使其能够处理各种不同类型的数据。
+   
+```cpp
+    template <typename T>
+    T add(T a, T b) {
+        return a + b;
+    }
+
+    int main() {
+        int sum1 = add(5, 3);      // 调用 add<int>(int, int)
+        double sum2 = add(3.14, 2.71); // 调用 add<double>(double, double)
+        return 0;
+    }
+```
+在静态多态性中，函数调佣的解析发生在编译时，因此也被成为编译时多态。
+这种多态性在程序运行时不会有额外的开销，因为调用的函数在编译时已经确定了。
+
+# 动态多态性
+C++中的动态多态性是通过虚函数和动态绑定来实现的。
+
+1. 虚函数
+    在基类中声明一个函数为虚函数，可以使得派生类能够对其进行重写。通过在函数声明前添加'virtual'关键字来定义虚函数。
+
+    ```cpp
+        class Base {
+        public:
+            virtual void someFunction() {
+                // Base class implementation
+            }
+        };
+    ```
+2. 派生类重写
+    派生类可以重写基类中的虚函数，以提供特定于派生类的实现
+
+    ```cpp
+        class Derived : public Base {
+        public:
+            void someFunction() override {
+                // Derived class implementation
+            }
+        };
+    ```
+3. 动态绑定
+    在运行时，通过基类指针或引用调用虚函数时，会根据指向或引用的对象的实际类型来确定调用的函数实现。这被称为动态绑定或运行时多态。
+
+    ```cpp
+    Base* ptr = new Derived();
+    ptr->someFunction(); // 运行时将调用 Derived 类中的实现
+    ```
+4. 虚函数表(vtable)
+    编译器会为每个包含虚函数的类创建一个虚函数表，其中存储了指向每个虚函数的指针。每个对象中也会存储一个指向其对应的虚函数表的指针。当调用虚函数时，程序会根据对象的虚函数表找到相应的函数实现。
+
+    总的来说，多态性的原理在于在运行时确定调用的函数实现，而不是在编译时。这种动态性使得程序能够更加灵活和可扩展，因为它允许在不改变代码结构的情况下对程序的行为进行扩展和修改。
+
+# 调用虚函数的具体过程
+调用虚函数的过程涉及到了虚函数表（vtable）和虚函数指针（vptr）。下面是调用虚函数的具体步骤：
+1. 编译时：
+- 当类中声明一个虚函数时，编译器会为该类创建一个虚函数表(vtable)。虚函数表示一个指针数组，其中每个指针指向对应虚函数的实际实现。
+- 对于每个对象，编译器会在对象中添加一个指向其所属类的虚函数表的指针，通常称为虚函数指针（vptr）。
+2. 运行时：
+- 当通过基类指针或引用调用虚函数时，程序会使用对象的虚函数指针（vptr）来访问其对应的虚函数表。
+- 虚函数表确定要调用的实际函数地址。这一步骤使用了动态绑定，根据对象的实际类型决定调用的函数。
+- 最终，调用的是虚函数表中相应位置的函数实现。
+  
+    ```cpp
+        class Base {
+        public:
+            virtual void someFunction() {
+                // Base class implementation
+            }
+        };
+
+        class Derived : public Base {
+        public:
+            void someFunction() override {
+                // Derived class implementation
+            }
+        };
+
+        int main() {
+            Base* ptr = new Derived(); // 使用基类指针指向派生类对象
+            ptr->someFunction(); // 调用虚函数
+            delete ptr;
+            return 0;
+        }
+    ```
+在上面的示例中，当调用 ptr->someFunction() 时，程序会在运行时确定调用的是 Derived 类中的 someFunction() 实现，而不是 Base 类中的。这是因为通过 ptr 找到了 Derived 类的虚函数表，并从中获取了 someFunction() 的地址。

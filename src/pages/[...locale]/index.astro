@@ -1,0 +1,165 @@
+---
+/**
+ * 首页 = 个人展示页：定位 -> 代表性成果 -> 精选文章 -> 关于与联系
+ *
+ * 文案在 `src/config.ts` 的 `PROFILE` 里集中配置，改文案不用动这个文件。
+ * 结构对应旧 Jekyll 版的 `_layouts/home.html`。
+ */
+import { Icon } from 'astro-icon/components';
+
+import ProjectCard from '~/components/ProjectCard.astro';
+import { CONTACT_EMAIL, PROFILE, SITE } from '~/config';
+import { formatDate, withBase } from '~/i18n/utils';
+import { getPosts, postPath } from '~/utils/posts';
+import { blogIndexPath, getProjects, projectsIndexPath } from '~/utils/projects';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+
+export function getStaticPaths() {
+  return SITE.locales.map((l) => ({
+    params: { locale: l === SITE.defaultLocale ? undefined : l },
+    props: { locale: l },
+  }));
+}
+
+const { locale } = Astro.props;
+
+const [projects, posts] = await Promise.all([getProjects(), getPosts(locale)]);
+
+// 精选文章：优先取置顶（pinned）的，一篇都没有就用最新的补齐
+const pinned = posts.filter((post) => post.data.pinned);
+const featured = (pinned.length > 0 ? pinned : posts).slice(0, 6);
+
+const blogHref = blogIndexPath(locale);
+const projectsHref = projectsIndexPath(locale);
+---
+
+<BaseLayout title={SITE.title} description={SITE.description} pathWithoutLocale="/">
+  <!-- ============ 1. 定位 ============ -->
+  <section class="hero">
+    <h1 class="hero-name">{PROFILE.name}</h1>
+    <p class="hero-role">{PROFILE.role}</p>
+    <p class="hero-lead">{PROFILE.lead}</p>
+
+    {
+      PROFILE.facts.length > 0 && (
+        <ul class="fact-row">
+          {PROFILE.facts.map((fact) => (
+            <li>
+              {fact.icon && <Icon name={fact.icon} width={14} height={14} />}
+              {fact.text}
+            </li>
+          ))}
+        </ul>
+      )
+    }
+
+    {
+      PROFILE.actions.length > 0 && (
+        <div class="action-row">
+          {PROFILE.actions.map((action) => {
+            const isExternal = action.external === true;
+            const href = isExternal ? action.url : withBase(action.url);
+            return (
+              <a
+                class:list={['action-btn', action.primary && 'primary']}
+                href={href}
+                target={isExternal ? '_blank' : undefined}
+                rel={isExternal ? 'noopener noreferrer' : undefined}
+              >
+                {action.icon && <Icon name={action.icon} width={15} height={15} />}
+                {action.label}
+              </a>
+            );
+          })}
+        </div>
+      )
+    }
+  </section>
+
+  <!-- ============ 2. 代表性成果 ============ -->
+  {
+    projects.length > 0 && (
+      <section class="section">
+        <div class="section-head">
+          <h2>
+            <Icon name="lucide:boxes" width={17} height={17} class="inline align-[-3px]" />{' '}
+            代表性成果
+          </h2>
+          <a href={projectsHref}>
+            全部 {projects.length} 项{' '}
+            <Icon name="lucide:chevron-right" width={13} height={13} class="inline align-[-2px]" />
+          </a>
+        </div>
+
+        <div class="card-grid">
+          {projects.slice(0, 3).map((project) => (
+            <ProjectCard project={project} locale={locale} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <!-- ============ 3. 精选技术文章 ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>
+        <Icon name="lucide:newspaper" width={17} height={17} class="inline align-[-3px]" /> 精选技术文章
+      </h2>
+      <a href={blogHref}>
+        全部 {posts.length} 篇{' '}
+        <Icon name="lucide:chevron-right" width={13} height={13} class="inline align-[-2px]" />
+      </a>
+    </div>
+
+    <div class="featured-list">
+      {
+        featured.map((post) => (
+          <a class="featured-item" href={postPath(post)}>
+            <div class="featured-item-title">{post.data.title}</div>
+            {post.data.description && <div class="featured-item-desc">{post.data.description}</div>}
+            <div class="featured-item-meta">
+              <Icon name="lucide:calendar" width={12} height={12} class="inline align-[-2px]" />{' '}
+              {formatDate(post.data.pubDate, locale)}
+              {post.data.categories.length > 0 && (
+                <span class="ms-2 inline-block">
+                  <Icon
+                    name="lucide:folder-open"
+                    width={12}
+                    height={12}
+                    class="inline align-[-2px]"
+                  />{' '}
+                  {post.data.categories.join(' / ')}
+                </span>
+              )}
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- ============ 4. 关于与联系 ============ -->
+  <section class="section">
+    <div class="section-head">
+      <h2>
+        <Icon name="lucide:id-card" width={17} height={17} class="inline align-[-3px]" /> 关于我
+      </h2>
+      <a href={withBase('/about/')}>
+        更多 <Icon name="lucide:chevron-right" width={13} height={13} class="inline align-[-2px]" />
+      </a>
+    </div>
+
+    <p class="mb-2">
+      我在机械臂动力学、参数辨识与运动控制方向持续投入，习惯把算法背后的数学推导、工程取舍与踩过的坑
+      整理成长文，发布在<a href={blogHref}>博客</a>里。
+    </p>
+    <p class="text-base-content/70 mb-0 text-sm">
+      欢迎通过
+      <a href={`mailto:${CONTACT_EMAIL}`}>邮箱</a>
+      或
+      <a href={SITE.author.url} target="_blank" rel="noopener noreferrer">GitHub</a>
+      与我交流。
+    </p>
+  </section>
+</BaseLayout>

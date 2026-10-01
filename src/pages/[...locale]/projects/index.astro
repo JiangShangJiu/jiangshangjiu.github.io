@@ -1,0 +1,46 @@
+---
+/**
+ * 成果列表页：列出 `src/content/projects/` 下的全部条目。
+ * 对应旧 Jekyll 版的 `_layouts/projects.html`。
+ */
+import ProjectCard from '~/components/ProjectCard.astro';
+import { SITE } from '~/config';
+import { useTranslations } from '~/i18n/utils';
+import { getProjects } from '~/utils/projects';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+
+export function getStaticPaths() {
+  return SITE.locales.map((l) => ({
+    params: { locale: l === SITE.defaultLocale ? undefined : l },
+    props: { locale: l },
+  }));
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const projects = await getProjects();
+---
+
+<BaseLayout
+  title={t('projects.title')}
+  description={t('projects.subtitle')}
+  pathWithoutLocale="/projects/"
+  crumbs={[{ label: t('projects.title') }]}
+>
+  <header class="mb-6">
+    <h1 class="text-3xl font-bold tracking-tight">{t('projects.title')}</h1>
+    {projects.length > 0 && <p class="text-base-content/70 mt-2">{t('projects.subtitle')}</p>}
+  </header>
+
+  {
+    projects.length === 0 ? (
+      <p class="text-base-content/70">{t('projects.empty')}</p>
+    ) : (
+      <div class="card-grid">
+        {projects.map((project) => (
+          <ProjectCard project={project} locale={locale} />
+        ))}
+      </div>
+    )
+  }
+</BaseLayout>

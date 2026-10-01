@@ -1,0 +1,17 @@
+dist/
+.astro/
+node_modules/
+public/_pagefind/
+bun.lockb
+AGENTS.md
+
+# Ported blog content is intentionally kept byte-for-byte as authored.
+#
+# Prettier's Markdown formatter treats `*` and `_` as emphasis delimiters, so it
+# silently rewrites math that legitimately contains them. For example
+# `$i_d^*, i_q^*$` (correct) became `$i_d^_, i_q^_$` (broken), which drops the
+# expression out of KaTeX and renders the raw LaTeX as visible text.
+#
+# It also re-pads Markdown tables, producing a large diff on every ported post.
+# Run `scripts/jekyll_to_astro.py` to regenerate these files from source.
+src/content/

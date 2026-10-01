@@ -1,0 +1,62 @@
+---
+/**
+ * Project card used on the homepage (top 3) and on `/projects/` (all).
+ * Visual markup mirrors the previous Jekyll theme's `.project-card`.
+ */
+import { Icon } from 'astro-icon/components';
+
+import type { Locale } from '../config';
+import { withBase } from '../i18n/utils';
+import { projectPath, type Project } from '../utils/projects';
+
+interface Props {
+  project: Project;
+  locale: Locale;
+}
+
+const { project, locale } = Astro.props;
+const { title, subtitle, description, heroImage, metrics, tags } = project.data;
+const href = projectPath(project, locale);
+const cover = typeof heroImage === 'string' ? withBase(heroImage) : undefined;
+---
+
+<article class="project-card">
+  {
+    cover && (
+      <a href={href} tabindex="-1" aria-hidden="true">
+        <img class="project-cover" src={cover} alt={title} loading="lazy" decoding="async" />
+      </a>
+    )
+  }
+
+  <div class="project-body">
+    <h3 class="project-title">
+      <a href={href}>{title}</a>
+    </h3>
+
+    {(description ?? subtitle) && <p class="project-desc">{description ?? subtitle}</p>}
+
+    {
+      metrics.length > 0 && (
+        <div class="project-metrics">
+          {metrics.map((metric) => (
+            <span class="metric">{metric}</span>
+          ))}
+        </div>
+      )
+    }
+
+    {
+      tags.length > 0 && (
+        <div class="project-tags">
+          {tags.map((tag) => (
+            <span class="tag">
+              <Icon name="lucide:hash" class="inline-block h-3 w-3 align-[-1px]" />
+              {tag}
+            </span>
+          ))}
+        </div>
+      )
+    }
+  </div>
+</article>
