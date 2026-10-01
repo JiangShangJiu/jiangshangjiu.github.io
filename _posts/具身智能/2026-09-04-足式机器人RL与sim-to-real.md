@@ -4,7 +4,7 @@ description: 从奖励函数逐项设计和大规模并行仿真讲起，拆解�
 author: 孔乙己
 date: 2026-09-04 22:38:00 +0800
 categories: [具身智能]
-tags: [强化学习, 足式机器人, sim-to-real, 域随机化]
+tags: [强化学习, sim-to-real, 足式机器人]
 math: true
 mermaid: true
 ---

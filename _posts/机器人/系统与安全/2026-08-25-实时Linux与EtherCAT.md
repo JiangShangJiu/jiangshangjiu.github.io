@@ -4,7 +4,7 @@ description: 从抖动预算出发，讲清 PREEMPT_RT 到底改了内核的什�
 author: 孔乙己
 date: 2026-08-25 22:20:00 +0800
 categories: [机器人, 系统与安全]
-tags: [实时Linux, PREEMPT_RT, EtherCAT, CiA402]
+tags: [伺服控制, 实时系统, EtherCAT]
 math: false
 mermaid: true
 ---

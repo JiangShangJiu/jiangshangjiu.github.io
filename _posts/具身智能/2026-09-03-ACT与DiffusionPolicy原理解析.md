@@ -4,7 +4,7 @@ description: 从行为克隆的复合误差与多模态困境出发，推导 ACT
 author: 孔乙己
 date: 2026-09-03 21:55:00 +0800
 categories: [具身智能]
-tags: [模仿学习, ACT, Diffusion Policy, 动作分块]
+tags: [模仿学习, 生成式策略]
 math: true
 mermaid: true
 ---
