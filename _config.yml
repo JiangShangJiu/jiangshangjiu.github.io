@@ -44,6 +44,43 @@ social:
     # Uncomment below to add more social links
     # - https://www.linkedin.com/in/username
 
+# ------------------------------------------------------------------
+# 首页（个人展示页）的内容，集中在这里方便修改
+# ------------------------------------------------------------------
+profile:
+  # 首页大标题。建议改成真名或常用 ID，与 GitHub / 邮箱保持一致的对外身份。
+  name: 孔乙己
+  # 一行定位：让别人 3 秒内知道你做什么
+  role: 机器人软件工程师 · 具身智能
+  # 2~3 句自我介绍，会显示在首页
+  lead: >-
+    专注于机械臂动力学建模、参数辨识与运动控制。习惯把算法背后的数学推一遍再落地，
+    并把推导过程写成长文发布在博客里。
+  # 关键事实条（可增删）。icon 用 Font Awesome 类名。
+  facts:
+    - icon: fas fa-map-marker-alt
+      text: 城市待填
+    - icon: fas fa-graduation-cap
+      text: 学历 / 院校待填
+    - icon: fas fa-briefcase
+      text: 方向：机械臂 · 运动规划 · 力控
+  # 首页按钮（可增删）
+  actions:
+    - label: 查看成果
+      url: /projects/
+      icon: fas fa-cubes
+      primary: true
+    - label: 读博客
+      url: /blog/
+      icon: fas fa-newspaper
+    - label: GitHub
+      url: https://github.com/JiangShangJiu
+      icon: fab fa-github
+      external: true
+    - label: 邮箱
+      url: mailto:laplacehurt@gmail.com
+      icon: fas fa-envelope
+
 # Site Verification Settings
 webmaster_verifications:
   google: # fill in your Google verification code
@@ -164,6 +201,11 @@ collections:
   tabs:
     output: true
     sort_by: order
+  # 成果展示：_projects/ 下每放一个 .md 就是一个成果条目，
+  # 访问路径为 /projects/<文件名>/，并自动出现在 /projects/ 列表页。
+  projects:
+    output: true
+    sort_by: order
 
 defaults:
   - scope:
@@ -176,6 +218,14 @@ defaults:
       # DO NOT modify the following parameter unless you are confident enough
       # to update the code of all other post links in this project.
       permalink: /posts/:title/
+  - scope:
+      path: ""
+      type: projects
+    values:
+      layout: project
+      permalink: /projects/:name/
+      toc: false
+      comments: false
   - scope:
       path: _drafts
     values:

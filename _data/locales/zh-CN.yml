@@ -11,6 +11,8 @@ layout:
 tabs:
   # format: <filename_without_extension>: <value>
   home: 首页
+  projects: 成果
+  blog: 博客
   categories: 分类
   tags: 标签
   archives: 归档
