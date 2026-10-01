@@ -24,6 +24,18 @@ export default [
   },
   ...astro.configs.recommended,
   {
+    // Service worker scripts run in the worker global scope, where `self`,
+    // `caches` and friends are defined instead of `window`/`document`.
+    files: ['public/**/*.js'],
+    languageOptions: {
+      globals: {
+        self: 'readonly',
+        caches: 'readonly',
+        clients: 'readonly',
+      },
+    },
+  },
+  {
     ignores: ['dist/**', '.astro/**', 'node_modules/**', 'public/_pagefind/**'],
   },
 ];
