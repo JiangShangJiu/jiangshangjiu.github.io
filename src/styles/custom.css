@@ -138,6 +138,104 @@
   color: #fff;
 }
 
+/* ---------- 首页成果展示：大卡片 ---------- */
+.project-feature {
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--main-border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--card-bg);
+  transition:
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.project-feature:last-child {
+  margin-bottom: 0;
+}
+
+.project-feature:hover {
+  border-color: var(--link-color);
+  transform: translateY(-2px);
+}
+
+/* 成果图按原始比例完整显示——刻意不设 aspect-ratio。
+   验证结果常是多子图曲线（例如 Franka 的 7 轴逐轴力矩），
+   一旦按封面比例裁切就会切掉大部分子图。 */
+.project-feature .feature-result {
+  margin: 0;
+  border-bottom: 1px solid var(--main-border-color);
+  background: var(--sidebar-bg);
+}
+
+.project-feature .feature-result img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.project-feature .feature-result figcaption {
+  padding: 0.55rem 1.25rem;
+  border-top: 1px solid var(--main-border-color);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--text-muted-color);
+}
+
+.project-feature .feature-body {
+  padding: 1.15rem 1.25rem 1.3rem;
+}
+
+.project-feature .feature-title {
+  margin: 0 0 0.4rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.project-feature .feature-title a {
+  color: var(--heading-color);
+  text-decoration: none;
+}
+
+.project-feature .feature-title a:hover {
+  color: var(--link-color);
+}
+
+.project-feature .feature-subtitle {
+  margin: 0 0 0.6rem;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  color: var(--text-muted-color);
+}
+
+.project-feature .feature-desc {
+  margin: 0 0 0.9rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: var(--text-muted-color);
+}
+
+.project-feature .feature-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.project-feature .chip {
+  padding: 0.18rem 0.55rem;
+  border-radius: 4px;
+  background: var(--tag-bg);
+  font-size: 0.78rem;
+  color: var(--text-muted-color);
+}
+
+.project-feature .chip.is-strong {
+  color: var(--link-color);
+  font-weight: 500;
+}
+
 /* ---------- 成果卡片网格 ---------- */
 /* auto-fit：条目少于列数时自动拉伸占满，避免单个成果只占半宽 */
 .card-grid {

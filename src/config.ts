@@ -114,7 +114,7 @@ export const SITE: SiteConfig = {
  */
 export const PROFILE: ProfileConfig = {
   name: '孔乙己',
-  role: '机器人软件工程师 · 具身智能',
+  role: '运动控制算法工程师',
   lead: '专注于机械臂动力学建模、参数辨识与运动控制。习惯把算法背后的数学推一遍再落地，并把推导过程写成长文发布在博客里。',
   facts: [
     { icon: 'lucide:map-pin', text: '城市待填' },

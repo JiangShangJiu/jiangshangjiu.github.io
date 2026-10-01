@@ -1,17 +1,18 @@
 ---
 /**
- * 首页 = 个人展示页：定位 -> 代表性成果 -> 精选文章 -> 关于与联系
+ * 首页 = 成果展示页：定位 -> 成果展示 -> 关于与联系
+ *
+ * 首页刻意不列文章：文章由导航的「博客」进入。这里只展示 `projects`
+ * 集合里的成果，每个成果用大卡片铺开——封面、关键指标（highlights）、
+ * 量化结论与源码入口。
  *
  * 文案在 `src/config.ts` 的 `PROFILE` 里集中配置，改文案不用动这个文件。
- * 结构对应旧 Jekyll 版的 `_layouts/home.html`。
  */
 import { Icon } from 'astro-icon/components';
 
-import ProjectCard from '~/components/ProjectCard.astro';
 import { CONTACT_EMAIL, PROFILE, SITE } from '~/config';
-import { formatDate, withBase } from '~/i18n/utils';
-import { getPosts, postPath } from '~/utils/posts';
-import { blogIndexPath, getProjects, projectsIndexPath } from '~/utils/projects';
+import { withBase } from '~/i18n/utils';
+import { blogIndexPath, getProjects, projectPath, projectsIndexPath } from '~/utils/projects';
 import BaseLayout from '~/layouts/BaseLayout.astro';
 
 export function getStaticPaths() {
@@ -23,11 +24,7 @@ export function getStaticPaths() {
 
 const { locale } = Astro.props;
 
-const [projects, posts] = await Promise.all([getProjects(), getPosts(locale)]);
-
-// 精选文章：优先取置顶（pinned）的，一篇都没有就用最新的补齐
-const pinned = posts.filter((post) => post.data.pinned);
-const featured = (pinned.length > 0 ? pinned : posts).slice(0, 6);
+const projects = await getProjects();
 
 const blogHref = blogIndexPath(locale);
 const projectsHref = projectsIndexPath(locale);
@@ -76,14 +73,13 @@ const projectsHref = projectsIndexPath(locale);
     }
   </section>
 
-  <!-- ============ 2. 代表性成果 ============ -->
+  <!-- ============ 2. 成果展示 ============ -->
   {
     projects.length > 0 && (
       <section class="section">
         <div class="section-head">
           <h2>
-            <Icon name="lucide:boxes" width={17} height={17} class="inline align-[-3px]" />{' '}
-            代表性成果
+            <Icon name="lucide:boxes" width={17} height={17} class="inline align-[-3px]" /> 成果展示
           </h2>
           <a href={projectsHref}>
             全部 {projects.length} 项{' '}
@@ -91,55 +87,97 @@ const projectsHref = projectsIndexPath(locale);
           </a>
         </div>
 
-        <div class="card-grid">
-          {projects.slice(0, 3).map((project) => (
-            <ProjectCard project={project} locale={locale} />
-          ))}
-        </div>
+        {projects.map((project) => {
+          const {
+            title,
+            subtitle,
+            description,
+            heroImage,
+            resultImage,
+            resultImageAlt,
+            highlights,
+            metrics,
+            stack,
+            buttons,
+          } = project.data;
+          const href = projectPath(project, locale);
+
+          // 优先展示辨识结果图（模型预测力矩 vs 实测），没有才退回封面。
+          const media = resultImage ?? heroImage;
+          const mediaSrc = typeof media === 'string' ? withBase(media) : undefined;
+          const isResult = Boolean(resultImage);
+
+          // 只有一个成果时铺满整宽；多个成果时两列排布，避免单个成果被拉得过宽。
+          const solo = projects.length === 1;
+
+          return (
+            <article class:list={['project-feature', solo && 'is-solo']}>
+              {mediaSrc && (
+                <figure class:list={['feature-result', isResult && 'is-plot']}>
+                  <img
+                    src={mediaSrc}
+                    alt={resultImageAlt ?? title}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  {isResult && resultImageAlt && <figcaption>{resultImageAlt}</figcaption>}
+                </figure>
+              )}
+
+              <div class="feature-body">
+                <h3 class="feature-title">
+                  <a href={href}>{title}</a>
+                </h3>
+
+                {subtitle && <p class="feature-subtitle">{subtitle}</p>}
+                {description && <p class="feature-desc">{description}</p>}
+
+                {highlights.length > 0 && (
+                  <div class="result-grid">
+                    {highlights.map((item) => (
+                      <div class="result-card">
+                        <span class="result-value">{item.value}</span>
+                        <span class="result-label">{item.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {(metrics.length > 0 || stack.length > 0) && (
+                  <div class="feature-chips">
+                    {metrics.map((metric) => (
+                      <span class="chip is-strong">{metric}</span>
+                    ))}
+                    {stack.map((tech) => (
+                      <span class="chip">{tech}</span>
+                    ))}
+                  </div>
+                )}
+
+                {buttons.length > 0 && (
+                  <div class="action-row">
+                    {buttons.map((btn) => (
+                      <a
+                        class:list={['action-btn', btn.primary && 'primary']}
+                        href={btn.external ? btn.url : withBase(btn.url)}
+                        target={btn.external ? '_blank' : undefined}
+                        rel={btn.external ? 'noopener noreferrer' : undefined}
+                      >
+                        {btn.icon && <Icon name={btn.icon} width={15} height={15} />}
+                        {btn.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </article>
+          );
+        })}
       </section>
     )
   }
 
-  <!-- ============ 3. 精选技术文章 ============ -->
-  <section class="section">
-    <div class="section-head">
-      <h2>
-        <Icon name="lucide:newspaper" width={17} height={17} class="inline align-[-3px]" /> 精选技术文章
-      </h2>
-      <a href={blogHref}>
-        全部 {posts.length} 篇{' '}
-        <Icon name="lucide:chevron-right" width={13} height={13} class="inline align-[-2px]" />
-      </a>
-    </div>
-
-    <div class="featured-list">
-      {
-        featured.map((post) => (
-          <a class="featured-item" href={postPath(post)}>
-            <div class="featured-item-title">{post.data.title}</div>
-            {post.data.description && <div class="featured-item-desc">{post.data.description}</div>}
-            <div class="featured-item-meta">
-              <Icon name="lucide:calendar" width={12} height={12} class="inline align-[-2px]" />{' '}
-              {formatDate(post.data.pubDate, locale)}
-              {post.data.categories.length > 0 && (
-                <span class="ms-2 inline-block">
-                  <Icon
-                    name="lucide:folder-open"
-                    width={12}
-                    height={12}
-                    class="inline align-[-2px]"
-                  />{' '}
-                  {post.data.categories.join(' / ')}
-                </span>
-              )}
-            </div>
-          </a>
-        ))
-      }
-    </div>
-  </section>
-
-  <!-- ============ 4. 关于与联系 ============ -->
+  <!-- ============ 3. 关于与联系 ============ -->
   <section class="section">
     <div class="section-head">
       <h2>

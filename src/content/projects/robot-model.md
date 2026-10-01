@@ -3,6 +3,8 @@ title: "机器人动力学建模与参数辨识"
 subtitle: "从符号化动力学建模，到激励轨迹设计、闭环数据采集、基参数辨识，再到完整惯性参数恢复"
 description: "一套可复用的机械臂动力学建模与参数辨识流程，在 RRR 三轴与 Franka Panda 七轴上完成闭环实验与独立轨迹验证。"
 heroImage: "/assets/img/projects/robot_model/cover.webp"
+resultImage: "/assets/img/projects/robot_model/franka-validation.webp"
+resultImageAlt: "Franka 独立验证轨迹上的逐轴力矩预测误差：灰底为低速剔除区间，白底为参与评分的样本"
 order: 1
 role: "独立完成（建模 / 辨识 / 实验 / 文档）"
 period: "2026.09 起，持续维护"

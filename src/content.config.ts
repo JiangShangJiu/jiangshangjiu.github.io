@@ -163,6 +163,19 @@ const projects = defineCollection({
       .extend({
         /** One-line pitch shown under the title on the detail page. */
         subtitle: z.string().optional(),
+        /**
+         * Featured figure for the homepage 成果展示 section — normally the
+         * identification *result* (e.g. model-predicted vs. measured torque),
+         * which is the actual deliverable of a project.
+         *
+         * Kept separate from `heroImage` on purpose: `heroImage` is a
+         * wide banner cropped to 2.4:1 by the listing cards, whereas result
+         * figures are often tall multi-panel plots that must not be cropped.
+         * Defaults to `heroImage` when unset.
+         */
+        resultImage: z.string().optional(),
+        /** Alt text and visible caption for `resultImage`. */
+        resultImageAlt: z.string().optional(),
         /** Lower numbers sort first in listings. */
         order: z.number().default(999),
         /** Short "what I did" line. */
