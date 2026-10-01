@@ -31,7 +31,7 @@ const t = useTranslations(locale);
   const STORAGE_KEY = 'theme';
 
   function currentTheme(): Theme {
-    return (document.documentElement.getAttribute('data-theme') as Theme) ?? 'chirpy-light';
+    return (document.documentElement.getAttribute('data-theme') as Theme) ?? 'chirpy-dark';
   }
 
   function commitTheme(theme: Theme, save = true): void {
@@ -105,18 +105,6 @@ const t = useTranslations(locale);
         };
         applyTheme(next, origin);
       });
-    });
-    // Sync with system preference if user hasn't pinned a theme yet.
-    const mql = window.matchMedia('(prefers-color-scheme: dark)');
-    mql.addEventListener('change', (e) => {
-      try {
-        if (localStorage.getItem(STORAGE_KEY)) return;
-      } catch {
-        /* ignore */
-      }
-      // Apply visually only — do not persist so the system preference
-      // remains the source of truth until the user explicitly toggles.
-      commitTheme(e.matches ? 'chirpy-dark' : 'chirpy-light', false);
     });
   }
 

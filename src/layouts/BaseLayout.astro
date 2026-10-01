@@ -93,7 +93,7 @@ const meta: SeoMeta =
 ---
 
 <!doctype html>
-<html lang={lang} data-theme="chirpy-light">
+<html lang={lang} data-theme="chirpy-dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -119,9 +119,9 @@ const meta: SeoMeta =
         function applyTheme() {
           try {
             var stored = localStorage.getItem('theme');
-            var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
             var valid = stored === 'chirpy-dark' || stored === 'chirpy-light';
-            var theme = valid ? stored : prefersDark ? 'chirpy-dark' : 'chirpy-light';
+            // Dark is the site default; an explicit user toggle (stored) wins.
+            var theme = valid ? stored : 'chirpy-dark';
             if (!valid && stored) localStorage.setItem('theme', theme);
             document.documentElement.setAttribute('data-theme', theme);
           } catch {

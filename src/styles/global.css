@@ -23,7 +23,7 @@
 /* ---------- Chirpy LIGHT ---------- */
 @plugin 'daisyui/theme' {
   name: 'chirpy-light';
-  default: true;
+  default: false;
   prefersdark: false;
   color-scheme: light;
 
@@ -71,8 +71,8 @@
 /* ---------- Chirpy DARK ---------- */
 @plugin 'daisyui/theme' {
   name: 'chirpy-dark';
-  default: false;
-  prefersdark: true;
+  default: true;
+  prefersdark: false;
   color-scheme: dark;
 
   /* Chirpy dark uses #1b1b1e for the page and #1e1e1f for cards */

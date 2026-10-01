@@ -115,11 +115,11 @@ export const SITE: SiteConfig = {
 export const PROFILE: ProfileConfig = {
   name: '孔乙己',
   role: '运动控制算法工程师',
-  lead: '专注于机械臂动力学建模、参数辨识、传统运动控制，以及 VLA 模型。习惯把算法背后的数学推一遍再落地，并把推导过程写成长文发布在博客里。',
+  lead: '专注于上半身（机械臂 / 双臂）的动力学建模、参数辨识与传统运动控制，以及 VLA 模型。习惯把算法背后的数学推一遍再落地，并把推导过程写成长文发布在博客里。',
   facts: [
     { icon: 'lucide:map-pin', text: '广东 · 深圳' },
     { icon: 'lucide:graduation-cap', text: '硕士研究生 · 广东工业大学' },
-    { icon: 'lucide:briefcase', text: '方向：传统运控 · VLA' },
+    { icon: 'lucide:briefcase', text: '方向：上半身运控（机械臂 / 双臂）· VLA' },
   ],
   actions: [
     { label: '查看成果', url: '/projects/', icon: 'lucide:boxes', primary: true },
