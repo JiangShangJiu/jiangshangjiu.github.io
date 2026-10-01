@@ -32,10 +32,10 @@ const projectsHref = projectsIndexPath(locale);
 
 <BaseLayout title={SITE.title} description={SITE.description} pathWithoutLocale="/">
   <!-- ============ 1. 定位 ============ -->
-  <section class="hero">
-    <h1 class="hero-name">{PROFILE.name}</h1>
-    <p class="hero-role">{PROFILE.role}</p>
-    <p class="hero-lead">{PROFILE.lead}</p>
+  <section class="profile-hero">
+    <h1 class="profile-name">{PROFILE.name}</h1>
+    <p class="profile-role">{PROFILE.role}</p>
+    <p class="profile-lead">{PROFILE.lead}</p>
 
     {
       PROFILE.facts.length > 0 && (
@@ -93,8 +93,7 @@ const projectsHref = projectsIndexPath(locale);
             subtitle,
             description,
             heroImage,
-            resultImage,
-            resultImageAlt,
+            resultFigures,
             highlights,
             metrics,
             stack,
@@ -102,26 +101,37 @@ const projectsHref = projectsIndexPath(locale);
           } = project.data;
           const href = projectPath(project, locale);
 
-          // 优先展示辨识结果图（模型预测力矩 vs 实测），没有才退回封面。
-          const media = resultImage ?? heroImage;
-          const mediaSrc = typeof media === 'string' ? withBase(media) : undefined;
-          const isResult = Boolean(resultImage);
+          // 优先展示结果图（辨识/验证的结果），没有才退回封面。
+          const figures = (
+            resultFigures.length > 0
+              ? resultFigures
+              : heroImage
+                ? [{ src: heroImage, alt: title, caption: undefined }]
+                : []
+          ).map((figure) => ({
+            ...figure,
+            src: withBase(figure.src),
+          }));
 
           // 只有一个成果时铺满整宽；多个成果时两列排布，避免单个成果被拉得过宽。
           const solo = projects.length === 1;
 
           return (
             <article class:list={['project-feature', solo && 'is-solo']}>
-              {mediaSrc && (
-                <figure class:list={['feature-result', isResult && 'is-plot']}>
-                  <img
-                    src={mediaSrc}
-                    alt={resultImageAlt ?? title}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  {isResult && resultImageAlt && <figcaption>{resultImageAlt}</figcaption>}
-                </figure>
+              {figures.length > 0 && (
+                <div class="feature-figures">
+                  {figures.map((figure, index) => (
+                    <figure class:list={['feature-result', index > 0 && 'is-secondary']}>
+                      <img
+                        src={figure.src}
+                        alt={figure.alt ?? title}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      {figure.caption && <figcaption>{figure.caption}</figcaption>}
+                    </figure>
+                  ))}
+                </div>
               )}
 
               <div class="feature-body">

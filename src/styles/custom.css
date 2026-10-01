@@ -48,26 +48,33 @@
   white-space: nowrap;
 }
 
-/* ---------- 首页 hero ---------- */
-.hero {
+/* ---------- 首页 profile hero ---------- */
+/* 注意：这里刻意不使用 `.hero` 作为类名。
+ * daisyUI 自带一个 `.hero` 组件（背景图 banner 用）：
+ *     .hero      { display: grid; place-items: center; }
+ *     .hero > *  { grid-row-start: 1; grid-column-start: 1; }
+ * 一旦复用 `.hero`，上面的 `.hero > *` 会把本区块的每个子元素
+ * 都塞进第 1 行第 1 列，导致姓名、事实条、按钮全部重叠成一坨。
+ * 因此本区块统一使用 `.profile-*` 前缀，与 daisyUI 命名空间隔离。 */
+.profile-hero {
   padding: 0.5rem 0 1.25rem;
 }
 
-.hero .hero-name {
+.profile-hero .profile-name {
   margin: 0 0 0.35rem;
   font-size: 2.1rem;
   font-weight: 700;
   letter-spacing: -0.01em;
 }
 
-.hero .hero-role {
+.profile-hero .profile-role {
   margin: 0 0 0.9rem;
   font-size: 1.05rem;
   font-weight: 500;
   color: var(--heading-color);
 }
 
-.hero .hero-lead {
+.profile-hero .profile-lead {
   margin: 0 0 1.1rem;
   max-width: 46rem;
   line-height: 1.75;
@@ -162,10 +169,17 @@
 /* 成果图按原始比例完整显示——刻意不设 aspect-ratio。
    验证结果常是多子图曲线（例如 Franka 的 7 轴逐轴力矩），
    一旦按封面比例裁切就会切掉大部分子图。 */
-.project-feature .feature-result {
-  margin: 0;
+.feature-figures {
   border-bottom: 1px solid var(--main-border-color);
   background: var(--sidebar-bg);
+}
+
+.project-feature .feature-result {
+  margin: 0;
+}
+
+.project-feature .feature-result + .feature-result {
+  border-top: 1px solid var(--main-border-color);
 }
 
 .project-feature .feature-result img {
@@ -504,7 +518,7 @@
 
 /* 移动端收紧间距 */
 @media (max-width: 576px) {
-  .hero .hero-name {
+  .profile-hero .profile-name {
     font-size: 1.7rem;
   }
 

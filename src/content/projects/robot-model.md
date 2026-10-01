@@ -3,8 +3,21 @@ title: "机器人动力学建模与参数辨识"
 subtitle: "从符号化动力学建模，到激励轨迹设计、闭环数据采集、基参数辨识，再到完整惯性参数恢复"
 description: "一套可复用的机械臂动力学建模与参数辨识流程，在 RRR 三轴与 Franka Panda 七轴上完成闭环实验与独立轨迹验证。"
 heroImage: "/assets/img/projects/robot_model/cover.webp"
-resultImage: "/assets/img/projects/robot_model/franka-validation.webp"
-resultImageAlt: "Franka 独立验证轨迹上的逐轴力矩预测误差：灰底为低速剔除区间，白底为参与评分的样本"
+# 首页「成果展示」用的结果图。刻意与 heroImage 分开：封面供列表卡片按
+# 2.4:1 裁切，而这里是辨识/验证的结果图（多为多子图曲线），必须完整显示。
+resultFigures:
+  # 头条结果：辨识模型在独立验证轨迹上的逐轴力矩预测误差（模型预测 vs 实测）
+  - src: "/assets/img/projects/robot_model/franka-validation.webp"
+    alt: "Franka 独立验证轨迹上的逐轴力矩预测误差"
+    caption: "Franka 独立验证轨迹上的逐轴力矩预测误差（模型预测 vs 实测）。灰底为低速剔除区间，白底为参与评分的样本。"
+  # 惯性参数恢复：反解每根连杆的质量、质心与惯性张量，并与对象真值对照
+  - src: "/assets/img/projects/robot_model/franka-inertia-com.webp"
+    alt: "Franka 连杆质心：名义模型 / 对象真值 / 恢复结果"
+    caption: "惯性参数恢复：各连杆质心（名义模型 / 对象真值 / 恢复结果，用各连杆坐标系表示）。恢复结果整体通过惯量正定与三角不等式检查。"
+  # 基参数辨识值 vs 真值
+  - src: "/assets/img/projects/robot_model/franka-base-params.webp"
+    alt: "Franka 基参数辨识值与对象真值对照"
+    caption: "62 个基参数的辨识值与对象真值逐项对照。"
 order: 1
 role: "独立完成（建模 / 辨识 / 实验 / 文档）"
 period: "2026.09 起，持续维护"

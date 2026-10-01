@@ -164,18 +164,29 @@ const projects = defineCollection({
         /** One-line pitch shown under the title on the detail page. */
         subtitle: z.string().optional(),
         /**
-         * Featured figure for the homepage 成果展示 section — normally the
-         * identification *result* (e.g. model-predicted vs. measured torque),
-         * which is the actual deliverable of a project.
+         * Featured figures for the homepage 成果展示 section — normally the
+         * project's *results* (e.g. model-predicted vs. measured torque, and
+         * the recovered inertial parameters), which are the actual deliverable.
          *
-         * Kept separate from `heroImage` on purpose: `heroImage` is a
-         * wide banner cropped to 2.4:1 by the listing cards, whereas result
-         * figures are often tall multi-panel plots that must not be cropped.
-         * Defaults to `heroImage` when unset.
+         * Kept separate from `heroImage` on purpose: `heroImage` is a wide
+         * banner cropped to 2.4:1 by the listing cards, whereas result figures
+         * are often tall multi-panel plots that must NOT be cropped.
+         * Falls back to `heroImage` when this list is empty.
+         *
+         * Rendered in order; the first one is the headline figure.
          */
-        resultImage: z.string().optional(),
-        /** Alt text and visible caption for `resultImage`. */
-        resultImageAlt: z.string().optional(),
+        resultFigures: z
+          .array(
+            z.object({
+              /** Absolute public path, e.g. `/assets/img/projects/x/plot.webp`. */
+              src: z.string(),
+              /** Alt text; falls back to the project title. */
+              alt: z.string().optional(),
+              /** Visible caption shown under the figure. */
+              caption: z.string().optional(),
+            }),
+          )
+          .default([]),
         /** Lower numbers sort first in listings. */
         order: z.number().default(999),
         /** Short "what I did" line. */
