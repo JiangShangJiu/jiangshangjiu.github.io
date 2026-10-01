@@ -8,14 +8,15 @@ showInNav: false
 
 这里是我的个人主页：[成果](/projects/) 页放我做的项目，[博客](/blog/) 页放技术笔记。
 
+- 城市：广东 · 深圳
+- 学历：硕士研究生 · 广东工业大学
 - GitHub：[JiangShangJiu](https://github.com/JiangShangJiu)
 - 邮箱：<laplacehurt@gmail.com>
 
 我关注的方向：
 
-- **机械臂建模与控制** —— 运动学、动力学、参数辨识、阻抗与力控
-- **运动规划** —— 时间最优路径参数化、采样式规划、多智能体路径规划
-- **具身智能** —— VLA 模型、模仿学习、足式机器人的强化学习与 sim-to-real
+- **传统运控** —— 机械臂运动学、动力学、参数辨识、阻抗与力控、运动规划
+- **VLA** —— VLA 模型、模仿学习、足式机器人的强化学习与 sim-to-real
 - **系统与并发** —— 实时 Linux / EtherCAT、ROS 2 实时性、C++ 并发与内存模型
 
 ```ashtml
