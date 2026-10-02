@@ -170,7 +170,7 @@
    验证结果常是多子图曲线（例如 Franka 的 7 轴逐轴力矩），
    一旦按封面比例裁切就会切掉大部分子图。 */
 .feature-figures {
-  border-bottom: 1px solid var(--main-border-color);
+  border-top: 1px solid var(--main-border-color);
   background: var(--sidebar-bg);
 }
 
@@ -182,10 +182,17 @@
   border-top: 1px solid var(--main-border-color);
 }
 
-.project-feature .feature-result img {
+.project-feature .feature-result img,
+.project-feature .feature-result video {
   display: block;
   width: 100%;
   height: auto;
+}
+
+/* 首页头条的自动循环短片：不要圆角/边框，和静态图保持一致 */
+.project-feature .feature-result video {
+  background: #000;
+  object-fit: contain;
 }
 
 .project-feature .feature-result figcaption {

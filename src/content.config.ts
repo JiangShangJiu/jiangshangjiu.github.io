@@ -187,6 +187,23 @@ const projects = defineCollection({
             }),
           )
           .default([]),
+        /**
+         * Looping demo clip shown as the headline visual on the homepage 成果
+         * card — autoplayed, muted and looping, i.e. a "video GIF". Kept
+         * separate from `heroImage`/`resultFigures` because it is a short,
+         * silent clip (`public/assets/videos/<slug>/loop.mp4`) rather than a
+         * still image. When present it replaces the still figures on the card.
+         */
+        featureVideo: z
+          .object({
+            /** Absolute public path, e.g. `/assets/videos/energy-tank/loop.mp4`. */
+            src: z.string(),
+            /** Poster frame shown before the clip starts. */
+            poster: z.string().optional(),
+            /** Visible caption shown under the clip. */
+            caption: z.string().optional(),
+          })
+          .optional(),
         /** Lower numbers sort first in listings. */
         order: z.number().default(999),
         /** Short "what I did" line. */

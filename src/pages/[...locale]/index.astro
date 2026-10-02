@@ -94,6 +94,7 @@ const projectsHref = projectsIndexPath(locale);
             description,
             heroImage,
             resultFigures,
+            featureVideo,
             highlights,
             metrics,
             stack,
@@ -116,24 +117,44 @@ const projectsHref = projectsIndexPath(locale);
           // 只有一个成果时铺满整宽；多个成果时两列排布，避免单个成果被拉得过宽。
           const solo = projects.length === 1;
 
+          // 首页头条视觉：优先用自动循环的演示短片（"视频版 GIF"），
+          // 没有短片时再退回静态结果图 / 封面。
+          const loop = featureVideo
+            ? {
+                ...featureVideo,
+                src: withBase(featureVideo.src),
+                poster: featureVideo.poster ? withBase(featureVideo.poster) : undefined,
+              }
+            : undefined;
+
+          // 排版顺序：标题 / 正文在上，展示（视频或结果图）在下。
+          const visual = loop ? (
+            <div class="feature-figures">
+              <figure class="feature-result">
+                <video autoplay muted loop playsinline preload="metadata" poster={loop.poster}>
+                  <source src={loop.src} type="video/mp4" />
+                </video>
+                {loop.caption && <figcaption>{loop.caption}</figcaption>}
+              </figure>
+            </div>
+          ) : figures.length > 0 ? (
+            <div class="feature-figures">
+              {figures.map((figure, index) => (
+                <figure class:list={['feature-result', index > 0 && 'is-secondary']}>
+                  <img
+                    src={figure.src}
+                    alt={figure.alt ?? title}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  {figure.caption && <figcaption>{figure.caption}</figcaption>}
+                </figure>
+              ))}
+            </div>
+          ) : undefined;
+
           return (
             <article class:list={['project-feature', solo && 'is-solo']}>
-              {figures.length > 0 && (
-                <div class="feature-figures">
-                  {figures.map((figure, index) => (
-                    <figure class:list={['feature-result', index > 0 && 'is-secondary']}>
-                      <img
-                        src={figure.src}
-                        alt={figure.alt ?? title}
-                        loading="lazy"
-                        decoding="async"
-                      />
-                      {figure.caption && <figcaption>{figure.caption}</figcaption>}
-                    </figure>
-                  ))}
-                </div>
-              )}
-
               <div class="feature-body">
                 <h3 class="feature-title">
                   <a href={href}>{title}</a>
@@ -180,6 +201,8 @@ const projectsHref = projectsIndexPath(locale);
                   </div>
                 )}
               </div>
+
+              {visual}
             </article>
           );
         })}

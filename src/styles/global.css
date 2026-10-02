@@ -524,9 +524,16 @@
     padding-bottom: 56.25%; /* 16:9 aspect ratio */
     background: var(--color-sidebar-to);
   }
-  .video-embed__frame > iframe {
+  .video-embed__frame > iframe,
+  .video-embed__frame > video {
     @apply absolute inset-0 h-full w-full;
     border: 0;
+  }
+
+  /* Self-hosted clips keep their aspect ratio inside the 16:9 frame. */
+  .video-embed__frame > video {
+    background: #000;
+    object-fit: contain;
   }
 
   /* Hero image — contained within content width, using the sidebar's

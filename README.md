@@ -65,6 +65,52 @@ python3 scripts/jekyll_to_astro.py projects --source <jekyll>/_projects
 python3 scripts/normalize_tags.py --check
 ```
 
+## 成果页与演示视频
+
+成果（projects）页面的正文是**普通 Markdown**（`src/content/projects/*.md`），
+可以直接用原生 HTML 嵌入自托管视频（KaTeX 与 Mermaid 在 Markdown 中同样可用，
+`.mdx` 则不具备这两个 markdown 插件）：
+
+```html
+<figure class="video-embed my-6">
+  <div class="video-embed__frame">
+    <video controls playsinline preload="metadata" poster="/assets/img/projects/<slug>/<name>.webp">
+      <source src="/assets/videos/<slug>/<name>.mp4" type="video/mp4" />
+    </video>
+  </div>
+  <figcaption class="text-base-content/55 mt-2 text-center text-xs italic">说明文字</figcaption>
+</figure>
+```
+
+成果页正文里的视频用上面的 `<figure>` 片段（点击播放、带控制条）。若想让成果在
+**首页卡片上自动循环播放**（"视频版 GIF"），在 frontmatter 里加一个 `featureVideo`：
+
+```yaml
+featureVideo:
+  src: '/assets/videos/<slug>/loop.mp4'
+  poster: '/assets/img/projects/<slug>/loop.webp'
+  caption: '说明文字'
+```
+
+首页会用 `<video autoplay muted loop playsinline>` 播放它，并替代静态结果图。
+短片的画面位置由脚本里的 `make_loop <源> <slug> loop <起始秒> <时长>` 决定。
+
+MDX 中也可以改用组件：`import LocalVideo from '~/components/LocalVideo.astro'`。
+
+演示视频与封面由 `scripts/prepare_project_media.sh` 从原始素材转码生成
+（540p H.264，24fps；单文件控制在 100MB 以内，以适配 GitHub Pages）：
+
+```bash
+scripts/prepare_project_media.sh          # 只生成缺失的文件
+scripts/prepare_project_media.sh --force  # 全部重新生成
+MEDIA_SRC=/path/to/media scripts/prepare_project_media.sh
+```
+
+> **不要用 GIF**：GIF 只有 256 色、没有帧间压缩，同一段画面换算成 GIF 大约要
+> **10 倍以上**的体积（实测 8 秒片段：MP4 约 0.9MB，GIF 4~9MB）。要"像 GIF 一样
+> 自动播放"，用 `<video autoplay muted loop playsinline>` 即可，体积仍是 MP4 级别。
+> 需要更高画质就在脚本里把 `scale=960:540`、`crf 30`、`-r 24` 调大。
+
 ## 部署
 
 推送到 `main` 分支后，由 GitHub Actions（`.github/workflows/deploy.yml`）自动构建并发布。

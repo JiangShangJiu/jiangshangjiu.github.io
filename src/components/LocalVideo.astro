@@ -1,0 +1,68 @@
+---
+/**
+ * Self-hosted demo video for MDX content.
+ *
+ * Mirrors `<VideoEmbed>` visually (same `.video-embed` figure styling) but
+ * renders a native HTML5 `<video>` element instead of an iframe, so short
+ * experiment clips stored under `public/assets/videos/**` can be played
+ * inline. Provide a `poster` frame so the player shows a meaningful still
+ * before the visitor hits play.
+ *
+ * Usage in a `.mdx` file:
+ *
+ *   import LocalVideo from '~/components/LocalVideo.astro';
+ *
+ *   <LocalVideo
+ *     src="/assets/videos/energy-tank/variable-impedance.mp4"
+ *     poster="/assets/videos/energy-tank/variable-impedance.webp"
+ *     caption="变阻抗实验：刚度突变时系统仍保持稳定"
+ *   />
+ */
+import { withBase } from '~/i18n/utils';
+
+interface Props {
+  /** Absolute public path of the mp4, e.g. `/assets/videos/x/demo.mp4`. */
+  src: string;
+  /** Optional poster frame path shown before playback. */
+  poster?: string;
+  /** Accessible title; falls back to the caption. */
+  title?: string;
+  /** Optional caption rendered under the player. */
+  caption?: string;
+  /** Loop the clip (useful for short, silent demos). */
+  loop?: boolean;
+  /** Start muted. */
+  muted?: boolean;
+  /** Autoplay + loop (muted automatically). */
+  autoplay?: boolean;
+}
+
+const { src, poster, title, caption, loop = false, muted = false, autoplay = false } = Astro.props;
+
+const isAutoplay = autoplay === true;
+---
+
+<figure class="video-embed my-6">
+  <div class="video-embed__frame">
+    <video
+      controls
+      playsinline
+      preload="metadata"
+      muted={muted || isAutoplay}
+      loop={loop || isAutoplay}
+      autoplay={isAutoplay}
+      poster={poster ? withBase(poster) : undefined}
+      title={title ?? caption}
+    >
+      <source src={withBase(src)} type="video/mp4" />
+      你的浏览器不支持内嵌视频，请<a href={withBase(src)}>下载观看</a>。
+    </video>
+  </div>
+  {
+    caption && (
+      <figcaption class="text-base-content/55 mt-2 text-center text-xs italic">
+        {caption}
+      </figcaption>
+    )
+  }
+</figure>
