@@ -40,7 +40,15 @@ const {
   status,
   stack,
   buttons,
+  math,
 } = project.data;
+
+// 成果正文同样支持 `$...$` / `$$...$$`：只有显式 `math: true` 的条目才
+// 会加载 KaTeX 样式表，避免其它成果页面白白下载。
+let MathStylesComponent;
+if (math) {
+  MathStylesComponent = (await import('~/components/MathStyles.astro')).default;
+}
 
 const cover = typeof heroImage === 'string' ? withBase(heroImage) : undefined;
 
@@ -60,6 +68,7 @@ const meta = [
   crumbs={[{ label: t('projects.title'), href: withBase('/projects/') }, { label: title }]}
 >
   <article class="px-1">
+    {math && MathStylesComponent && <MathStylesComponent />}
     <p class="mb-2">
       <a href={withBase('/projects/')} class="text-base-content/70 text-sm no-underline">
         <Icon name="lucide:arrow-left" width={13} height={13} class="inline align-[-2px]" />
