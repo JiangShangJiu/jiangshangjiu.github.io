@@ -200,10 +200,30 @@ const projects = defineCollection({
             src: z.string(),
             /** Poster frame shown before the clip starts. */
             poster: z.string().optional(),
+            /** Native video ratio, e.g. "12 / 11" for the IK four-panel clip. */
+            aspectRatio: z
+              .string()
+              .regex(/^[1-9]\d*\s*\/\s*[1-9]\d*$/)
+              .default('16 / 9'),
             /** Visible caption shown under the clip. */
             caption: z.string().optional(),
           })
           .optional(),
+        /** Optional set of looping previews for homepage and listing cards. */
+        previewVideos: z
+          .array(
+            z.object({
+              src: z.string(),
+              poster: z.string().optional(),
+              title: z.string().optional(),
+              caption: z.string().optional(),
+              aspectRatio: z
+                .string()
+                .regex(/^[1-9]\d*\s*\/\s*[1-9]\d*$/)
+                .default('16 / 9'),
+            }),
+          )
+          .default([]),
         /** Lower numbers sort first in listings. */
         order: z.number().default(999),
         /** Short "what I did" line. */

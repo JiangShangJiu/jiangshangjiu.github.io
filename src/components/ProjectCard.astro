@@ -1,9 +1,9 @@
 ---
 /**
- * Project card used on the homepage (top 3) and on `/projects/` (all).
- * Visual markup mirrors the previous Jekyll theme's `.project-card`.
+ * Project listing card with a linked video preview and a static-image fallback.
  */
 import { Icon } from 'astro-icon/components';
+import ProjectMedia from './ProjectMedia.astro';
 
 import type { Locale } from '../config';
 import { withBase } from '../i18n/utils';
@@ -18,14 +18,19 @@ const { project, locale } = Astro.props;
 const { title, subtitle, description, heroImage, metrics, tags } = project.data;
 const href = projectPath(project, locale);
 const cover = typeof heroImage === 'string' ? withBase(heroImage) : undefined;
+const hasVideo = Boolean(project.data.featureVideo || project.data.previewVideos?.length);
 ---
 
 <article class="project-card">
   {
-    cover && (
-      <a href={href} tabindex="-1" aria-hidden="true">
-        <img class="project-cover" src={cover} alt={title} loading="lazy" decoding="async" />
-      </a>
+    hasVideo ? (
+      <ProjectMedia project={project} locale={locale} />
+    ) : (
+      cover && (
+        <a href={href} tabindex="-1" aria-hidden="true">
+          <img class="project-cover" src={cover} alt={title} loading="lazy" decoding="async" />
+        </a>
+      )
     )
   }
 
@@ -46,6 +51,12 @@ const cover = typeof heroImage === 'string' ? withBase(heroImage) : undefined;
       )
     }
 
+    {hasVideo && (
+      <a class="project-entry" href={href}
+        >看演示与过程 <Icon name="lucide:arrow-up-right" width={14} height={14} /></a
+      >
+    )}
+
     {
       tags.length > 0 && (
         <div class="project-tags">
@@ -60,3 +71,14 @@ const cover = typeof heroImage === 'string' ? withBase(heroImage) : undefined;
     }
   </div>
 </article>
+
+<style>
+  .project-entry {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+</style>

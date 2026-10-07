@@ -14,6 +14,7 @@ import { CONTACT_EMAIL, PROFILE, SITE } from '~/config';
 import { withBase } from '~/i18n/utils';
 import { blogIndexPath, getProjects, projectPath, projectsIndexPath } from '~/utils/projects';
 import BaseLayout from '~/layouts/BaseLayout.astro';
+import ProjectMedia from '~/components/ProjectMedia.astro';
 
 export function getStaticPaths() {
   return SITE.locales.map((l) => ({
@@ -88,121 +89,160 @@ const projectsHref = projectsIndexPath(locale);
         </div>
 
         {projects.map((project) => {
-          const {
-            title,
-            subtitle,
-            description,
-            heroImage,
-            resultFigures,
-            featureVideo,
-            highlights,
-            metrics,
-            stack,
-            buttons,
-          } = project.data;
+          const hasVideo = Boolean(project.data.featureVideo || project.data.previewVideos?.length);
+          if (!hasVideo) {
+            const {
+              title,
+              subtitle,
+              description,
+              heroImage,
+              resultFigures,
+              highlights,
+              metrics,
+              stack,
+              buttons,
+            } = project.data;
+            const href = projectPath(project, locale);
+
+            // 优先展示结果图（辨识/验证的结果），没有才退回封面。
+            const figures = (
+              resultFigures.length > 0
+                ? resultFigures
+                : heroImage
+                  ? [{ src: heroImage, alt: title, caption: undefined }]
+                  : []
+            ).map((figure) => ({
+              ...figure,
+              src: withBase(figure.src),
+            }));
+
+            // 只有一个成果时铺满整宽；多个成果时两列排布，避免单个成果被拉得过宽。
+            const solo = projects.length === 1;
+
+            const visual = figures.length > 0 ? (
+              <div class="feature-figures">
+                {figures.map((figure, index) => (
+                  <figure class:list={['feature-result', index > 0 && 'is-secondary']}>
+                    <img
+                      src={figure.src}
+                      alt={figure.alt ?? title}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                    {figure.caption && <figcaption>{figure.caption}</figcaption>}
+                  </figure>
+                ))}
+              </div>
+            ) : undefined;
+
+            return (
+              <article class:list={['project-feature', solo && 'is-solo']}>
+                <div class="feature-body">
+                  <h3 class="feature-title">
+                    <a href={href}>{title}</a>
+                  </h3>
+
+                  {subtitle && <p class="feature-subtitle">{subtitle}</p>}
+                  {description && <p class="feature-desc">{description}</p>}
+
+                  {highlights.length > 0 && (
+                    <div class="result-grid">
+                      {highlights.map((item) => (
+                        <div class="result-card">
+                          <span class="result-value">{item.value}</span>
+                          <span class="result-label">{item.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {(metrics.length > 0 || stack.length > 0) && (
+                    <div class="feature-chips">
+                      {metrics.map((metric) => (
+                        <span class="chip is-strong">{metric}</span>
+                      ))}
+                      {stack.map((tech) => (
+                        <span class="chip">{tech}</span>
+                      ))}
+                    </div>
+                  )}
+
+                  {buttons.length > 0 && (
+                    <div class="action-row">
+                      {buttons.map((btn) => (
+                        <a
+                          class:list={['action-btn', btn.primary && 'primary']}
+                          href={btn.external ? btn.url : withBase(btn.url)}
+                          target={btn.external ? '_blank' : undefined}
+                          rel={btn.external ? 'noopener noreferrer' : undefined}
+                        >
+                          {btn.icon && <Icon name={btn.icon} width={15} height={15} />}
+                          {btn.label}
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {visual}
+              </article>
+            );
+          }
+
+          const { title, subtitle, description, highlights, metrics, buttons } = project.data;
           const href = projectPath(project, locale);
-
-          // 优先展示结果图（辨识/验证的结果），没有才退回封面。
-          const figures = (
-            resultFigures.length > 0
-              ? resultFigures
-              : heroImage
-                ? [{ src: heroImage, alt: title, caption: undefined }]
-                : []
-          ).map((figure) => ({
-            ...figure,
-            src: withBase(figure.src),
-          }));
-
-          // 只有一个成果时铺满整宽；多个成果时两列排布，避免单个成果被拉得过宽。
-          const solo = projects.length === 1;
-
-          // 首页头条视觉：优先用自动循环的演示短片（"视频版 GIF"），
-          // 没有短片时再退回静态结果图 / 封面。
-          const loop = featureVideo
-            ? {
-                ...featureVideo,
-                src: withBase(featureVideo.src),
-                poster: featureVideo.poster ? withBase(featureVideo.poster) : undefined,
-              }
-            : undefined;
-
-          // 排版顺序：标题 / 正文在上，展示（视频或结果图）在下。
-          const visual = loop ? (
-            <div class="feature-figures">
-              <figure class="feature-result">
-                <video autoplay muted loop playsinline preload="metadata" poster={loop.poster}>
-                  <source src={loop.src} type="video/mp4" />
-                </video>
-                {loop.caption && <figcaption>{loop.caption}</figcaption>}
-              </figure>
-            </div>
-          ) : figures.length > 0 ? (
-            <div class="feature-figures">
-              {figures.map((figure, index) => (
-                <figure class:list={['feature-result', index > 0 && 'is-secondary']}>
-                  <img
-                    src={figure.src}
-                    alt={figure.alt ?? title}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  {figure.caption && <figcaption>{figure.caption}</figcaption>}
-                </figure>
-              ))}
-            </div>
-          ) : undefined;
+          const source = buttons.find(
+            (button) => button.external && /github\.com\/[^/]+\/[^/]+\/?$/.test(button.url),
+          );
 
           return (
-            <article class:list={['project-feature', solo && 'is-solo']}>
-              <div class="feature-body">
+            <article class="project-feature is-video-project">
+              <div class="feature-body feature-intro">
                 <h3 class="feature-title">
                   <a href={href}>{title}</a>
                 </h3>
+                {(subtitle || description) && (
+                  <p class="feature-subtitle">{subtitle ?? description}</p>
+                )}
+              </div>
 
-                {subtitle && <p class="feature-subtitle">{subtitle}</p>}
-                {description && <p class="feature-desc">{description}</p>}
+              <ProjectMedia project={project} locale={locale} />
 
-                {highlights.length > 0 && (
+              <div class="feature-body">
+                {highlights.length > 0 ? (
                   <div class="result-grid">
-                    {highlights.map((item) => (
+                    {highlights.slice(0, 2).map((item) => (
                       <div class="result-card">
                         <span class="result-value">{item.value}</span>
                         <span class="result-label">{item.label}</span>
                       </div>
                     ))}
                   </div>
+                ) : (
+                  metrics.length > 0 && (
+                    <div class="feature-chips">
+                      {metrics.map((metric) => (
+                        <span class="chip">{metric}</span>
+                      ))}
+                    </div>
+                  )
                 )}
-
-                {(metrics.length > 0 || stack.length > 0) && (
-                  <div class="feature-chips">
-                    {metrics.map((metric) => (
-                      <span class="chip is-strong">{metric}</span>
-                    ))}
-                    {stack.map((tech) => (
-                      <span class="chip">{tech}</span>
-                    ))}
-                  </div>
-                )}
-
-                {buttons.length > 0 && (
-                  <div class="action-row">
-                    {buttons.map((btn) => (
-                      <a
-                        class:list={['action-btn', btn.primary && 'primary']}
-                        href={btn.external ? btn.url : withBase(btn.url)}
-                        target={btn.external ? '_blank' : undefined}
-                        rel={btn.external ? 'noopener noreferrer' : undefined}
-                      >
-                        {btn.icon && <Icon name={btn.icon} width={15} height={15} />}
-                        {btn.label}
-                      </a>
-                    ))}
-                  </div>
-                )}
+                <div class="action-row">
+                  <a class="action-btn primary" href={href}>
+                    看演示与过程 <Icon name="lucide:arrow-up-right" width={15} height={15} />
+                  </a>
+                  {source && (
+                    <a
+                      class="action-btn"
+                      href={source.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Icon name="lucide:github" width={15} height={15} /> 源码
+                    </a>
+                  )}
+                </div>
               </div>
-
-              {visual}
             </article>
           );
         })}
@@ -234,3 +274,12 @@ const projectsHref = projectsIndexPath(locale);
     </p>
   </section>
 </BaseLayout>
+
+<style>
+  .project-feature .feature-intro {
+    padding-bottom: 0.65rem;
+  }
+  .project-feature.is-video-project .result-grid {
+    margin-top: 0;
+  }
+</style>

@@ -1,0 +1,181 @@
+---
+import { Icon } from 'astro-icon/components';
+
+import type { Locale } from '../config';
+import { withBase } from '../i18n/utils';
+import { projectPath, type Project } from '../utils/projects';
+
+interface Props {
+  project: Project;
+  locale: Locale;
+  detail?: boolean;
+}
+
+const { project, locale, detail = false } = Astro.props;
+const { title, heroImage, heroImageAlt, featureVideo, previewVideos } = project.data;
+const href = projectPath(project, locale);
+const caption = featureVideo?.caption;
+const videoProps = featureVideo
+  ? {
+      autoplay: true,
+      muted: true,
+      loop: true,
+      playsinline: true,
+      preload: 'metadata' as const,
+      poster: featureVideo.poster ? withBase(featureVideo.poster) : undefined,
+      title: `${title} · 演示`,
+      style: { aspectRatio: featureVideo.aspectRatio },
+    }
+  : undefined;
+---
+
+{
+  !detail && previewVideos.length > 0 ? (
+    <div class="project-media-gallery">
+      {previewVideos.map((clip) => (
+        <figure class="project-media">
+          <a
+            class="project-media__link"
+            href={href}
+            aria-label={`查看${title}的${clip.title ?? '运动演示'}`}
+          >
+            <video
+              autoplay
+              muted
+              loop
+              playsinline
+              preload="metadata"
+              poster={clip.poster ? withBase(clip.poster) : undefined}
+              title={`${title} · ${clip.title ?? '演示'}`}
+              style={{ aspectRatio: clip.aspectRatio }}
+              aria-hidden="true"
+              tabindex="-1"
+            >
+              <source src={withBase(clip.src)} type="video/mp4" />
+            </video>
+            <span class="project-media__badge">{clip.title ?? '动态预览'}</span>
+            <span class="project-media__cue">
+              看演示与过程 <Icon name="lucide:arrow-up-right" width={15} height={15} />
+            </span>
+          </a>
+          {clip.caption && <figcaption>{clip.caption}</figcaption>}
+        </figure>
+      ))}
+    </div>
+  ) : (
+    (featureVideo || heroImage) && (
+      <figure class:list={['project-media', detail && 'is-detail']}>
+        {detail && featureVideo ? (
+          <video {...videoProps} controls>
+            <source src={withBase(featureVideo.src)} type="video/mp4" />
+          </video>
+        ) : (
+          <a class="project-media__link" href={href} aria-label={`查看${title}的演示与过程`}>
+            {featureVideo ? (
+              <video {...videoProps} aria-hidden="true" tabindex="-1">
+                <source src={withBase(featureVideo.src)} type="video/mp4" />
+              </video>
+            ) : (
+              <img src={withBase(heroImage!)} alt={heroImageAlt ?? title} loading="lazy" />
+            )}
+            {featureVideo && <span class="project-media__badge">动态预览</span>}
+            <span class="project-media__cue">
+              看演示与过程 <Icon name="lucide:arrow-up-right" width={15} height={15} />
+            </span>
+          </a>
+        )}
+        {caption && <figcaption>{caption}</figcaption>}
+      </figure>
+    )
+  )
+}
+
+<style>
+  .project-media-gallery {
+    display: grid;
+    gap: 1px;
+    background: var(--main-border-color);
+  }
+
+  .project-media {
+    margin: 0;
+    overflow: hidden;
+    background: #edf2f7;
+  }
+
+  .project-media__link {
+    position: relative;
+    display: block;
+    color: #fff;
+    text-decoration: none;
+  }
+
+  .project-media__link:focus-visible {
+    outline: 3px solid var(--link-color);
+    outline-offset: -3px;
+  }
+
+  video,
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 36rem;
+    object-fit: contain;
+    background: #edf2f7;
+  }
+
+  .project-media__badge,
+  .project-media__cue {
+    position: absolute;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border: 1px solid rgb(255 255 255 / 25%);
+    background: rgb(20 30 44 / 78%);
+    color: #fff;
+    backdrop-filter: blur(8px);
+    font-size: 0.76rem;
+    line-height: 1.4;
+    pointer-events: none;
+  }
+
+  .project-media__badge {
+    top: 0.75rem;
+    left: 0.75rem;
+    padding: 0.3rem 0.55rem;
+    border-radius: 999px;
+  }
+
+  .project-media__cue {
+    right: 0.75rem;
+    bottom: 0.75rem;
+    padding: 0.45rem 0.65rem;
+    border-radius: 6px;
+    transition: background 0.2s ease;
+  }
+
+  .project-media__link:hover .project-media__cue {
+    background: rgb(20 30 44 / 95%);
+  }
+
+  figcaption {
+    margin: 0;
+    padding: 0.6rem 1rem;
+    background: var(--card-bg);
+    color: var(--text-muted-color);
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+
+  .is-detail {
+    margin: 1.25rem 0;
+    border: 1px solid var(--main-border-color);
+    border-radius: 10px;
+  }
+
+  .is-detail video {
+    max-height: min(70vh, 42rem);
+  }
+</style>

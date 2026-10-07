@@ -92,8 +92,12 @@ featureVideo:
   caption: '说明文字'
 ```
 
-首页会用 `<video autoplay muted loop playsinline>` 播放它，并替代静态结果图。
-短片的画面位置由脚本里的 `make_loop <源> <slug> loop <起始秒> <时长>` 决定。
+首页和成果列表使用静音循环的动态预览，点击预览进入项目；详情页在标题下直接显示带控制条的主视频。主视频由 `ProjectMedia.astro` 统一渲染，正文只嵌入其余实验视频，避免重复。
+
+`featureVideo` 还支持 `aspectRatio`（默认 `"16 / 9"`）；IK 四联片使用 `"12 / 11"`，画面按原比例完整显示。视频项目的首页主按钮指向项目详情，技术笔记和源码保留在详情页。
+`previewVideos` 可为首页和成果列表单独配置多段预览（字段同 `featureVideo`，另支持 `title`）。IK 使用直线与圆周两段四联动画，详情页仍由 `featureVideo` 展示固定末端多解。没有视频的项目沿用原来的结果图和信息排版。
+
+短片的截取位置由脚本里的 `make_loop <源> <slug> loop <起始秒> <时长>` 决定。
 
 MDX 中也可以改用组件：`import LocalVideo from '~/components/LocalVideo.astro'`。
 
@@ -110,6 +114,17 @@ MEDIA_SRC=/path/to/media scripts/prepare_project_media.sh
 > **10 倍以上**的体积（实测 8 秒片段：MP4 约 0.9MB，GIF 4~9MB）。要"像 GIF 一样
 > 自动播放"，用 `<video autoplay muted loop playsinline>` 即可，体积仍是 MP4 级别。
 > 需要更高画质就在脚本里把 `scale=960:540`、`crf 30`、`-r 24` 调大。
+
+### 更新 IK 展示
+
+IK 项目的正文、动画和实验数据统一维护在 [IK 仓库](https://github.com/JiangShangJiu/ik) 的 `docs/homepage/`。在本站根目录同步：
+
+```bash
+python3 scripts/sync_ik_showcase_media.py --repo ../ik
+npm run build
+```
+
+脚本先校验完整资源集，再原样复制项目 Markdown 与 37 项 WebP、MP4、JSON，清理 IK 专用目录内无引用的旧资源。无需重新渲染或转码；数学公式通过 `math: true` 渲染，正文视频容器使用各片的实际宽高比。
 
 ## 部署
 
