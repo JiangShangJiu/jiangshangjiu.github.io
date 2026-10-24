@@ -1,0 +1,108 @@
+---
+/**
+ * 研究首页：持续论文研究系统的入口。
+ *
+ * 四个子模块按「子目录 = 类型」组织（见 `src/utils/research.ts`）：
+ * 论文雷达（每周）、论文精读、复现记录（预留）、趋势观察（预留）。
+ * 列表复用博客索引页的 `post-module-head` 模块头样式。
+ */
+import { Icon } from 'astro-icon/components';
+
+import { SITE } from '~/config';
+import { useTranslations } from '~/i18n/utils';
+import {
+  RESEARCH_KINDS,
+  RESEARCH_KIND_META,
+  RESEARCH_STATUS_META,
+  getResearchEntries,
+  researchKind,
+  researchPath,
+  type ResearchEntry,
+} from '~/utils/research';
+import { formatDate } from '~/i18n/utils';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+
+export function getStaticPaths() {
+  return SITE.locales.map((l) => ({
+    params: { locale: l === SITE.defaultLocale ? undefined : l },
+    props: { locale: l },
+  }));
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const entries = await getResearchEntries();
+
+const byKind = new Map<string, ResearchEntry[]>();
+for (const entry of entries) {
+  const kind = researchKind(entry);
+  byKind.set(kind, [...(byKind.get(kind) ?? []), entry]);
+}
+
+/** 各子模块的一句话说明（含预留模块的空态说明）。 */
+const emptyHints: Record<string, string> = {
+  classics:
+    '先补课再追新：ACT、Diffusion Policy、里程碑 VLA、阻抗/能量罐、动力学辨识与摩擦、IK/冗余、双臂经典等必读论文，按主题分期整理。',
+  radar: '每周一期：自动抓取 arXiv 上半身操作相关论文与 GitHub 工程动态，人工筛选点评后发布。',
+  deepdive: '对值得细读的论文做逐节推导与解读；AI 草稿会明确标注，审读后才算定稿。',
+  repro: '预留板块：论文复现的环境、过程与结果记录（与论文声称值对照）。',
+  trends: '预留板块：跨周期的方向性观察与综述。',
+};
+---
+
+<BaseLayout
+  title={t('research.title')}
+  description={t('research.subtitle')}
+  pathWithoutLocale="/research/"
+  crumbs={[{ label: t('research.title') }]}
+>
+  <header class="mb-6">
+    <h1 class="text-3xl font-bold tracking-tight">{t('research.title')}</h1>
+    <p class="text-base-content/70 mt-2">{t('research.subtitle')}</p>
+  </header>
+
+  {
+    RESEARCH_KINDS.map((kind) => {
+      const meta = RESEARCH_KIND_META[kind];
+      const list = byKind.get(kind) ?? [];
+      return (
+        <section>
+          <div class="post-module-head">
+            <h2>
+              <Icon name={meta.icon} width={17} height={17} class="inline align-[-3px]" />{' '}
+              {meta.label}
+            </h2>
+            {list.length > 0 && <span class="text-base-content/60 text-sm">{list.length} 篇</span>}
+          </div>
+
+          <p class="text-base-content/60 mb-3 text-sm">{emptyHints[kind]}</p>
+
+          {list.length === 0 ? (
+            <p class="text-base-content/50 text-sm italic">{t('research.empty')}</p>
+          ) : (
+            <ul class="research-list">
+              {list.map((entry) => {
+                const status = RESEARCH_STATUS_META[entry.data.status];
+                return (
+                  <li>
+                    <a href={researchPath(entry, locale)}>{entry.data.title}</a>
+                    <span class={`research-status is-${entry.data.status}`}>{status.label}</span>
+                    {entry.data.papers.length > 0 && (
+                      <span class="text-base-content/50 text-xs">
+                        {entry.data.papers.length} 篇论文
+                        {entry.data.repos.length > 0 && ` · ${entry.data.repos.length} 个仓库`}
+                      </span>
+                    )}
+                    <time class="text-base-content/50 ml-auto text-xs">
+                      {formatDate(entry.data.pubDate, locale)}
+                    </time>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+      );
+    })
+  }
+</BaseLayout>

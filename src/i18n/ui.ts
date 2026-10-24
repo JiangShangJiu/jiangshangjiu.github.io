@@ -13,6 +13,7 @@ export const messages = {
     'site.skipToContent': '跳到正文',
     'nav.home': '首页',
     'nav.projects': '成果',
+    'nav.research': '研究',
     'nav.posts': '博客',
     'nav.tags': '标签',
     'nav.categories': '分类',
@@ -83,6 +84,12 @@ export const messages = {
     'projects.subtitle': '我做过的一些项目与实验。',
     'projects.empty': '还没有成果条目。',
     'projects.backToProjects': '返回成果',
+
+    'research.title': '研究',
+    'research.subtitle':
+      '上半身机器人学习与控制的持续研究系统：经典选读、每周论文雷达、论文精读、复现记录与趋势观察。',
+    'research.empty': '该板块还没有内容。',
+    'research.backToResearch': '返回研究',
 
     'search.title': '搜索',
     'search.placeholder': '搜索本站内容',
