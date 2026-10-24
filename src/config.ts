@@ -144,6 +144,7 @@ export const PROFILE: ProfileConfig = {
 export const NAV: readonly NavItem[] = [
   { key: 'home', href: '/', icon: 'lucide:home' },
   { key: 'projects', href: '/projects', icon: 'lucide:boxes' },
+  { key: 'research', href: '/research', icon: 'lucide:telescope' },
   { key: 'posts', href: '/blog', icon: 'lucide:newspaper' },
   { key: 'categories', href: '/categories', icon: 'lucide:layers' },
   { key: 'tags', href: '/tags', icon: 'lucide:tag' },

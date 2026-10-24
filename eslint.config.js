@@ -36,6 +36,18 @@ export default [
     },
   },
   {
+    // Node CLI scripts (e.g. the weekly radar generator) run under Node 20+,
+    // where `console` and `fetch` are globals; `process` etc. are imported
+    // explicitly from `node:*` modules.
+    files: ['scripts/**/*.mjs'],
+    languageOptions: {
+      globals: {
+        console: 'readonly',
+        fetch: 'readonly',
+      },
+    },
+  },
+  {
     ignores: ['dist/**', '.astro/**', 'node_modules/**', 'public/_pagefind/**'],
   },
 ];

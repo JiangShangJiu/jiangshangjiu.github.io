@@ -523,6 +523,177 @@
   color: var(--text-muted-color);
 }
 
+/* ---------- 研究板块（/research/） ---------- */
+.research-kind {
+  margin-bottom: 0.4rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-muted-color);
+  text-transform: uppercase;
+}
+
+/* 审读状态横幅：区分 AI 草稿 / 审读中 / 已审读 */
+.research-banner {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  margin: 0 0 1.5rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--main-border-color);
+  border-left-width: 4px;
+  border-radius: 8px;
+  background: var(--card-bg);
+}
+
+.research-banner__label {
+  margin: 0 0 0.15rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--heading-color);
+}
+
+.research-banner__detail {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: var(--text-muted-color);
+}
+
+.research-banner.is-ai-draft {
+  border-left-color: #d97706;
+}
+
+.research-banner.is-in-review {
+  border-left-color: var(--link-color);
+}
+
+.research-banner.is-reviewed {
+  border-left-color: #16a34a;
+}
+
+/* 研究首页的条目列表 */
+.research-list {
+  margin: 0 0 0.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.research-list li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.75rem;
+  align-items: baseline;
+  padding: 0.55rem 0.1rem;
+  border-bottom: 1px dashed var(--main-border-color);
+}
+
+.research-list li:last-child {
+  border-bottom: 0;
+}
+
+/* 状态小徽章（列表内） */
+.research-status {
+  padding: 0.08rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.research-status.is-ai-draft {
+  background: color-mix(in srgb, #d97706 14%, transparent);
+  color: #b45309;
+}
+
+.research-status.is-in-review {
+  background: color-mix(in srgb, var(--link-color) 14%, transparent);
+  color: var(--link-color);
+}
+
+.research-status.is-reviewed {
+  background: color-mix(in srgb, #16a34a 14%, transparent);
+  color: #15803d;
+}
+
+/* 论文 / 仓库卡片 */
+.paper-card {
+  margin: 0 0 1.1rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid var(--main-border-color);
+  border-radius: 8px;
+  background: var(--card-bg);
+}
+
+.paper-card__title {
+  display: flex;
+  gap: 0.5rem;
+  align-items: baseline;
+  margin: 0 0 0.35rem;
+  font-size: 1.02rem;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.paper-card__index {
+  flex: none;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  background: var(--tag-bg);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.5rem;
+  text-align: center;
+  color: var(--text-muted-color);
+}
+
+.paper-card__meta {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--text-muted-color);
+}
+
+.paper-card__topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0 0 0.6rem;
+}
+
+.paper-card__facets {
+  margin: 0.4rem 0 0.2rem;
+}
+
+.paper-card__facets > div {
+  margin-bottom: 0.55rem;
+}
+
+.paper-card__facets dt {
+  margin-bottom: 0.1rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--text-muted-color);
+  text-transform: uppercase;
+}
+
+.paper-card__facets dd {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.75;
+}
+
+.paper-card__links {
+  margin-top: 0.75rem;
+}
+
+.paper-card__links .action-btn {
+  padding: 0.3rem 0.7rem;
+  font-size: 0.78rem;
+}
+
 /* 移动端收紧间距 */
 @media (max-width: 576px) {
   .profile-hero .profile-name {

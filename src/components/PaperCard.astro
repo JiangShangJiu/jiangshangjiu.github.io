@@ -1,0 +1,97 @@
+---
+/**
+ * 论文卡片：渲染 research 集合 frontmatter 中的单篇论文。
+ *
+ * 技术内容字段（问题/动机/方法/关键机制/实验/局限/推荐理由）由
+ * schema 强制填写；字段文本中的 `$...$` / `$$...$$` 公式在构建期由
+ * KaTeX 渲染（见 `renderMathInline`），其余文本做 HTML 转义。
+ * 元数据（作者/时间/链接）须来自 arXiv 等真实来源。
+ */
+import { Icon } from 'astro-icon/components';
+import type { CollectionEntry } from 'astro:content';
+
+import { renderMathInline } from '~/utils/research';
+
+type Paper = NonNullable<CollectionEntry<'research'>['data']['paper']>;
+
+interface Props {
+  paper: Paper;
+  /** 雷达页中的序号。 */
+  index?: number;
+  /** 精读页顶部的「本文论文」卡片（略去技术字段，只保留元数据）。 */
+  headline?: boolean;
+}
+
+const { paper, index, headline = false } = Astro.props;
+
+const facets: Array<{ label: string; text?: string }> = [
+  { label: '问题', text: paper.problem },
+  { label: '动机（相对已有工作）', text: paper.motivation },
+  { label: '核心方法', text: paper.method },
+  { label: '关键机制', text: paper.mechanism },
+  { label: '实验（作者声称）', text: paper.experiments },
+  { label: '局限', text: paper.limitations },
+  { label: '推荐理由', text: paper.recommendation },
+];
+
+const links = [
+  { label: '原文（abs）', url: paper.links.abs, icon: 'lucide:file-text' },
+  { label: 'PDF', url: paper.links.pdf, icon: 'lucide:file-down' },
+  { label: '项目主页', url: paper.links.project, icon: 'lucide:globe' },
+  { label: '代码', url: paper.links.code, icon: 'lucide:github' },
+].filter((l) => Boolean(l.url));
+
+const dateLabel = paper.published?.toISOString().slice(0, 10);
+---
+
+<article class="paper-card">
+  <h3 class="paper-card__title">
+    {index !== undefined && <span class="paper-card__index">{index}</span>}
+    <a href={paper.links.abs} target="_blank" rel="noopener noreferrer">{paper.title}</a>
+  </h3>
+
+  <p class="paper-card__meta">
+    {paper.authors.join(', ')}
+    {dateLabel && <> · {dateLabel}</>}
+    {paper.arxivId && <> · arXiv:{paper.arxivId}</>}
+    {paper.categories.length > 0 && <> · {paper.categories.join(' / ')}</>}
+  </p>
+
+  {
+    paper.topics.length > 0 && (
+      <p class="paper-card__topics">
+        {paper.topics.map((topic) => (
+          <span class="post-tag text-xs">{topic}</span>
+        ))}
+      </p>
+    )
+  }
+
+  {
+    !headline && (
+      <dl class="paper-card__facets">
+        {facets
+          .filter((f) => Boolean(f.text))
+          .map((f) => (
+            <div>
+              <dt>{f.label}</dt>
+              <dd set:html={renderMathInline(f.text!)} />
+            </div>
+          ))}
+      </dl>
+    )
+  }
+
+  {
+    links.length > 0 && (
+      <div class="action-row paper-card__links">
+        {links.map((link) => (
+          <a class="action-btn" href={link.url} target="_blank" rel="noopener noreferrer">
+            <Icon name={link.icon} width={14} height={14} />
+            {link.label}
+          </a>
+        ))}
+      </div>
+    )
+  }
+</article>

@@ -1,0 +1,73 @@
+# 每周论文雷达：抓取 arXiv 上半身操作相关论文，生成草稿条目并开 PR。
+#
+# 设计原则：
+#  - 只开 PR，绝不直接推 main / 自动合并——精读与点评必须人工 review；
+#  - 生成的条目带 `draft: true`，即使 PR 被误合并，生产构建也不会展示
+#    未经 review 的内容；
+#  - 脚本失败（网络错误 / 零结果）则整个 job 失败、不开 PR，站点保留
+#    上一期的正常内容（fail closed）。
+#
+# TODO(automation)（详见 scripts/weekly-radar.mjs 顶部注释）：
+#  - LLM 预填论文技术字段；
+#  - GitHub 工程雷达数据抓取；
+#  - 历史条目去重。
+
+name: Weekly Paper Radar
+
+on:
+  schedule:
+    # 每周一 00:30 UTC（北京时间周一 08:30）
+    - cron: '30 0 * * 1'
+  workflow_dispatch:
+    inputs:
+      days:
+        description: '抓取最近 N 天的论文'
+        required: false
+        default: '7'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  radar:
+    name: Generate radar draft
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+
+      - name: Generate radar entry
+        env:
+          DAYS: ${{ inputs.days || '7' }}
+        run: node scripts/weekly-radar.mjs
+
+      # 验证生成的内容能通过 schema 校验与构建，坏内容不进 PR。
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build with generated entry
+        run: npm run build
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: auto/weekly-radar
+          commit-message: 'content(research): 论文雷达草稿（自动生成）'
+          title: '论文雷达草稿：待人工筛选与点评'
+          body: |
+            每周论文雷达自动生成的草稿条目（`src/content/research/radar/`）。
+
+            Review 清单：
+            - [ ] 剔除范围外论文（locomotion / 无人机 / 移动底盘为核心的工作）
+            - [ ] 补全每篇的问题/动机/方法/机制/实验/局限/推荐理由
+            - [ ] 核实 project / code 链接（脚本只填 arXiv abs/pdf，不猜测 URL）
+            - [ ] 补充 GitHub 工程雷达条目
+            - [ ] 确认无误后把 `draft: true` 改为 `false`
+          labels: research, automated
+          delete-branch: true

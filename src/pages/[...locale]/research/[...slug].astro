@@ -1,0 +1,178 @@
+---
+/**
+ * 研究条目详情页：论文雷达 / 论文精读 / 复现记录 / 趋势观察 共用。
+ *
+ * 页面顶部始终渲染「审读状态」横幅，明确区分 AI 分析草稿与本人审读
+ * 结论；论文卡片中的实验数字一律标注「作者声称」，与本人复现结果区分。
+ */
+import { render } from 'astro:content';
+import { Icon } from 'astro-icon/components';
+
+import { SITE } from '~/config';
+import { useTranslations, withBase, formatDate, isoDate } from '~/i18n/utils';
+import {
+  RESEARCH_KIND_META,
+  RESEARCH_STATUS_META,
+  getResearchEntries,
+  researchKind,
+  researchSlug,
+} from '~/utils/research';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import PaperCard from '~/components/PaperCard.astro';
+import RepoCard from '~/components/RepoCard.astro';
+
+export async function getStaticPaths() {
+  const entries = await getResearchEntries();
+  return SITE.locales.flatMap((locale) =>
+    entries.map((entry) => ({
+      params: {
+        locale: locale === SITE.defaultLocale ? undefined : locale,
+        slug: researchSlug(entry),
+      },
+      props: { entry },
+    })),
+  );
+}
+
+const { entry } = Astro.props;
+const locale = SITE.defaultLocale;
+const t = useTranslations(locale);
+
+const kind = researchKind(entry);
+const kindMeta = RESEARCH_KIND_META[kind];
+const status = RESEARCH_STATUS_META[entry.data.status];
+const { Content } = await render(entry);
+const { title, description, pubDate, updatedDate, tags, papers, repos, paper } = entry.data;
+
+// frontmatter 里的论文字段（mechanism 等）可能含 `$...$` 公式，需要
+// KaTeX 样式表；正文的 math/mermaid 则沿用 frontmatter 开关。
+const hasFrontmatterMath = [...papers, ...(paper ? [paper] : [])].some((p) =>
+  [p.problem, p.motivation, p.method, p.mechanism, p.experiments, p.limitations].some((s) =>
+    s?.includes('$'),
+  ),
+);
+let MathStylesComponent;
+if (entry.data.math || hasFrontmatterMath) {
+  MathStylesComponent = (await import('~/components/MathStyles.astro')).default;
+}
+let MermaidComponent;
+if (entry.data.mermaid) {
+  MermaidComponent = (await import('~/components/islands/Mermaid.astro')).default;
+}
+
+const statusIcon =
+  status.tone === 'warning'
+    ? 'lucide:shield-alert'
+    : status.tone === 'success'
+      ? 'lucide:shield-check'
+      : 'lucide:eye';
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  type="article"
+  publishedTime={pubDate}
+  modifiedTime={updatedDate}
+  tags={tags}
+  pathWithoutLocale={`/research/${researchSlug(entry)}/`}
+  crumbs={[{ label: t('research.title'), href: withBase('/research/') }, { label: title }]}
+>
+  {MathStylesComponent && <MathStylesComponent />}
+  {MermaidComponent && <MermaidComponent />}
+
+  <article class="px-1 py-6 sm:px-2 sm:py-8">
+    <p class="mb-2">
+      <a href={withBase('/research/')} class="text-base-content/70 text-sm no-underline">
+        <Icon name="lucide:arrow-left" width={13} height={13} class="inline align-[-2px]" />
+        {t('research.backToResearch')}
+      </a>
+    </p>
+
+    <header class="mb-6">
+      <p class="research-kind">
+        <Icon name={kindMeta.icon} width={14} height={14} class="inline align-[-2px]" />
+        {kindMeta.label}
+      </p>
+      <h1 class="text-base-content text-3xl leading-tight font-extrabold tracking-tight">
+        {title}
+      </h1>
+      <p class="text-base-content/65 mt-3 text-lg">{description}</p>
+      <div class="text-base-content/70 mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+        <span class="inline-flex items-center gap-1">
+          <Icon name="lucide:calendar-days" width={14} height={14} />
+          <time datetime={isoDate(pubDate)}>{formatDate(pubDate, locale)}</time>
+        </span>
+        {
+          updatedDate && (
+            <span class="inline-flex items-center gap-1">
+              <Icon name="lucide:check" width={14} height={14} />
+              <time datetime={isoDate(updatedDate)}>
+                {t('post.updatedOn')} {formatDate(updatedDate, locale)}
+              </time>
+            </span>
+          )
+        }
+      </div>
+    </header>
+
+    <aside class:list={['research-banner', `is-${entry.data.status}`]} role="note">
+      <Icon name={statusIcon} width={18} height={18} class="shrink-0" />
+      <div>
+        <p class="research-banner__label">{status.label}</p>
+        <p class="research-banner__detail">{status.detail}</p>
+      </div>
+    </aside>
+
+    {paper && <PaperCard paper={paper} headline />}
+
+    <div class="prose-chirpy max-w-none">
+      <Content />
+    </div>
+
+    {
+      papers.length > 0 && (
+        <section class="section">
+          <div class="section-head">
+            <h2>
+              <Icon name="lucide:file-text" width={17} height={17} class="inline align-[-3px]" />
+              本期论文（{papers.length} 篇）
+            </h2>
+          </div>
+          {papers.map((p, i) => (
+            <PaperCard paper={p} index={i + 1} />
+          ))}
+        </section>
+      )
+    }
+
+    {
+      repos.length > 0 && (
+        <section class="section">
+          <div class="section-head">
+            <h2>
+              <Icon name="lucide:github" width={17} height={17} class="inline align-[-3px]" />
+              工程雷达：GitHub 仓库动态（{repos.length} 个）
+            </h2>
+          </div>
+          {repos.map((repo) => (
+            <RepoCard repo={repo} />
+          ))}
+        </section>
+      )
+    }
+
+    {
+      tags.length > 0 && (
+        <footer class="border-base-300 mt-10 flex flex-wrap items-center gap-2 border-t pt-6">
+          <span class="text-base-content/70 text-sm font-semibold tracking-wide uppercase">
+            {t('post.tags')}
+          </span>
+          {tags.map((tag) => (
+            <span class="post-tag text-xs">{tag}</span>
+          ))}
+        </footer>
+      )
+    }
+  </article>
+</BaseLayout>

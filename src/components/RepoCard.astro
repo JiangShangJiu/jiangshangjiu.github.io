@@ -1,0 +1,72 @@
+---
+/**
+ * GitHub 工程仓库卡片：渲染 research 集合 frontmatter 中的 repos 条目。
+ * star 数与「最近动态」为抓取时刻（checkedAt）的真实数据。
+ */
+import { Icon } from 'astro-icon/components';
+import type { CollectionEntry } from 'astro:content';
+
+type Repo = CollectionEntry<'research'>['data']['repos'][number];
+
+interface Props {
+  repo: Repo;
+}
+
+const { repo } = Astro.props;
+const starLabel =
+  repo.stars !== undefined
+    ? repo.stars >= 1000
+      ? `${(repo.stars / 1000).toFixed(1)}k`
+      : String(repo.stars)
+    : undefined;
+const checkedLabel = repo.checkedAt?.toISOString().slice(0, 10);
+---
+
+<article class="paper-card repo-card">
+  <h3 class="paper-card__title">
+    <Icon name="lucide:github" width={16} height={16} class="inline align-[-2px]" />
+    <a href={repo.url} target="_blank" rel="noopener noreferrer">{repo.name}</a>
+  </h3>
+
+  <p class="paper-card__meta">
+    {repo.language && <>{repo.language}</>}
+    {
+      starLabel && (
+        <>
+          {repo.language && ' · '}
+          <Icon name="lucide:star" width={12} height={12} class="inline align-[-1px]" /> {starLabel}
+        </>
+      )
+    }
+    {checkedLabel && <> ·（{checkedLabel} 抓取）</>}
+  </p>
+
+  {
+    repo.topics.length > 0 && (
+      <p class="paper-card__topics">
+        {repo.topics.map((topic) => (
+          <span class="post-tag text-xs">{topic}</span>
+        ))}
+      </p>
+    )
+  }
+
+  <dl class="paper-card__facets">
+    <div>
+      <dt>它是什么</dt>
+      <dd>{repo.summary}</dd>
+    </div>
+    <div>
+      <dt>最近动态</dt>
+      <dd>{repo.recentChange}</dd>
+    </div>
+    {
+      repo.recommendation && (
+        <div>
+          <dt>关注理由</dt>
+          <dd>{repo.recommendation}</dd>
+        </div>
+      )
+    }
+  </dl>
+</article>
